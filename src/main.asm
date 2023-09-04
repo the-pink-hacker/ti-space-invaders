@@ -2,24 +2,17 @@
 #include "includes/ti84pce.inc"
 .list
 
-.org userMem-2
-ProgramStart:
+.org userMem - 2
+Start:
   .db tExtTok,tAsm84CeCmp
-
-PROGRAM_HEADER:
-  jp PROGRAM_START
-
-PROGRAM_START:
-  ld a, 64
-  ld b, 25
-  jp ALPHABET
+  call _ClrLCDFull
+  jr KeyTest
   ret
 
-ALPHABET:
-  inc a
-  call _putc
-  ; Decrease b
-  ; If b == 0 -> continue
-  ; If b != 0 -> ALPHABET
-  djnz ALPHABET
+KeyTest:
+  call _GetKey
+  cp kEnter
+  jr nz, KeyTest
   ret
+
+.end
