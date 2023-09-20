@@ -1,6 +1,5 @@
 .nolist
 #include "includes/ti84pce.inc"
-#define GBUF PlotSScreen
 .list
 
 .org userMem - 2
@@ -14,30 +13,50 @@ Start:
   call _GetKey
   jr GameLoop
 Exit:
-  call _ClrLCDAll
-  call _DrawStatusBar
-  call _GrBufClr ; Clears the graph
-  set graphDraw, (iy + graphFlags) ; Forces the graph to rerender
-  ld hl, EndMessage
-  call _PutS
-  call _NewLine
   ret
 
 GameLoop:
   call _ClrLCDAll
+  ld de, vRam
+  ld a, lcdHeight
 _GameLoop:
-  call _GrBufClr
-  ld de, GBUF
   ld hl, Data
   ld bc, 64
   ldir
-  call _GrBufCpyV
-  ld a, (Data)
-  inc a
-  ld (Data), a
-  call _GetCSC
-  cp skClear
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ld hl, Data
+  ld bc, 64
+  ldir
+  ;call _GetCSC
+  ;cp skClear
+  ;jr nz, _GameLoop
+  cp 0
+  dec a
   jr nz, _GameLoop
+  call _GetKey
   ret
 
 StartMessage:
