@@ -8,7 +8,9 @@ start:
   call _RunIndicOff
   call _ClrLCDAll
   call _HomeUp
-  ld hl, StartMessage
+  ld hl, StringTitle
+  call _PutS
+  call _NewLine
   call _PutS
   call _GetKey
   call game_loop
@@ -22,13 +24,15 @@ exit:
 game_loop:
   call _ClrLCDAll
   call init_lcd
-  ld ix, 0
 _game_loop:
-  ;call get_palette_color
-  ld a, (ix)
-  inc ix
 ; Render the screen
+  ld a, C_BLUE
   call fill_screen
+  ld a, 16
+  ld b, lcdHeight - 16 - 8
+  ld de, (PlayerPosition)
+  ld ix, TestSprite
+  call put_sprite
   call swap_vbuffer
 ; Check for input
   call _GetCSC
@@ -39,7 +43,13 @@ _game_loop:
 #include "src/gfx.asm"
 #include "src/sprites.asm"
 
-StartMessage:
-  .db "Hi there, press anything to start...", 0
+PlayerPosition:
+  .dl (lcdWidth - SPRITE_WIDTH) / 2
+
+StringTitle:
+  .db "Space Invaders", 0
+
+StringPressStart:
+  .db "Press anything to start...", 0
 
 .end

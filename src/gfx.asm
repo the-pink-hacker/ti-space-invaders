@@ -10,9 +10,6 @@ fill_screen:
 ;
 ; Inputs:
 ;   a = palette-color
-; Output:
-;   hl = vRamEnd
-;   de = vRamEnd
 ; Destorys:
 ;   Registers:
 ;     de
@@ -21,16 +18,48 @@ fill_screen:
 ;     z
 ;     c
   ld hl, (RenderBuffer)
-  ld de, 76800
+  ld de, vBufferSize
 _fill_screen_loop:
+  dec de
   ld (hl), a
   inc hl
-  dec de
   push hl
   ld hl, 0
-  call _CpHlDe ; Todo: Get rid of syscall
+  sbc hl, de
   pop hl
-  jr nz, _fill_screen_loop
+  ret p
+  jr _fill_screen_loop
+
+put_sprite:
+; Inputs:
+;   de = x
+;   b = y (>1)
+;   a = height
+;   ix = *sprite
+; Destorys:
+;   Registers:
+;     a
+;     de
+  ld hl, (RenderBuffer)
+  add hl, de
+  ld de, lcdWidth
+_put_sprite_yshift_loop:
+  add hl, de
+  djnz _put_sprite_yshift_loop ; y=0 => y=255
+  ex de, hl ; de=*sprite_origin
+  ld b, a ; Moves height into b
+  push ix ; Move *sprite into hl
+  pop hl
+_put_sprite_render_loop:
+  push bc ; 1: height
+  ld bc, SPRITE_WIDTH
+  ldir
+  ex de, hl
+  ld bc, lcdWidth - SPRITE_WIDTH
+  add hl, bc
+  ex de, hl
+  pop bc ; 1: height
+  djnz _put_sprite_render_loop
   ret
 
 init_lcd:
@@ -80,6 +109,9 @@ _copy_hl_1555_palette_loop:
 ; 0000 0001 0010 1100 0000 0000
 
 swap_vbuffer:
+; Destorys:
+;   Registers:
+;     af
   ; Toggles vRam
   ld a, (mpLcdBase + 1)
   push af
