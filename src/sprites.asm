@@ -1,0 +1,7 @@
+; Color constants
+C_BLACK equ %00000000
+C_WHITE equ %11111111
+C_RED   equ %11100000
+C_GREEN equ %00000011
+C_BLUE  equ %00011100
+
