@@ -12,44 +12,43 @@ start:
   call _PutS
   call _NewLine
   call _PutS
-  call _GetKey
+  call _GetKeyRetOff
   call game_loop
 exit:
+  call restore_keyboard
   call clean_up_lcd
   call _ClrScrnFull
   call _HomeUp
   call _DrawStatusBar
   ret
 
-game_loop:
-  call _ClrLCDAll
-  call init_lcd
-_game_loop:
-; Render the screen
-  ld a, C_BLUE
-  call fill_screen
-  ld a, 16
-  ld b, lcdHeight - 16 - 8
-  ld de, (PlayerPosition)
-  ld ix, TestSprite
-  call put_sprite
-  call swap_vbuffer
-; Check for input
-  call _GetCSC
-  cp skClear
-  jr nz, _game_loop
+restore_keyboard:
+  ld hl, $0F50000
+  xor a		; Mode 0
+  ld (hl), a
+  inc l		; 0F50001h
+  ld (hl), 15	; Wait 15*256 APB cycles before scanning each row
+  inc l		; 0F50002h
+  xor a
+  ld (hl), a
+  inc l		; 0F50003h
+  ld (hl), 15	; Wait 15 APB cycles before each scan
+  inc l		; 0F50004h
+  ld a, 8		; Number of rows to scan
+  ld (hl), a
+  inc l		; 0F50005h
+  ld (hl), a	; Number of columns to scan
   ret
 
+
+#include "src/game.asm"
 #include "src/gfx.asm"
 #include "src/sprites.asm"
-
-PlayerPosition:
-  .dl (lcdWidth - SPRITE_WIDTH) / 2
 
 StringTitle:
   .db "Space Invaders", 0
 
 StringPressStart:
-  .db "Press anything to start...", 0
+  .db "Press any key to start...", 0
 
 .end

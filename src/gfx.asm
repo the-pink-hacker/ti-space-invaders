@@ -52,10 +52,10 @@ _put_sprite_yshift_loop:
   pop hl
 _put_sprite_render_loop:
   push bc ; 1: height
-  ld bc, SPRITE_WIDTH
+  ld bc, spriteWidth
   ldir
   ex de, hl
-  ld bc, lcdWidth - SPRITE_WIDTH
+  ld bc, lcdWidth - spriteWidth
   add hl, bc
   ex de, hl
   pop bc ; 1: height

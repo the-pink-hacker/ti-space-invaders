@@ -1,41 +1,25 @@
 ; Color constants
-C_BLACK .equ %00000000
-C_WHITE .equ %11111111
-C_RED   .equ %11100000
-C_GREEN .equ %00000011
-C_BLUE  .equ %00011100
-SPRITE_WIDTH .equ 16
+black .equ %00000000
+white .equ %11111111
+red   .equ %11100000
+green .equ %00000011
+blue  .equ %00011100
+spriteWidth .equ 16
 
-TestSprite:
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
-  .db C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK, C_RED, C_BLACK
+SpritePlayer:
+  .db black, black, black, black, black, black, black, white
+  .db black, black, black, black, black, black, black, black
+  .db black, black, black, black, black, black, white, white
+  .db white, black, black, black, black, black, black, black
+  .db black, black, black, black, black, black, white, white
+  .db white, black, black, black, black, black, black, black
+  .db black, black, black, white, white, white, white, white
+  .db white, white, white, white, white, black, black, black
+  .db black, black, white, white, white, white, white, white
+  .db white, white, white, white, white, white, black, black
+  .db black, black, white, white, white, white, white, white
+  .db white, white, white, white, white, white, black, black
+  .db black, black, white, white, white, white, white, white
+  .db white, white, white, white, white, white, black, black
+  .db black, black, white, white, white, white, white, white
+  .db white, white, white, white, white, white, black, black
