@@ -19,8 +19,7 @@ exit:
   call clean_up_lcd
   call _ClrScrnFull
   call _HomeUp
-  call _DrawStatusBar
-  ret
+  jp _DrawStatusBar
 
 restore_keyboard:
   ld hl, $0F50000

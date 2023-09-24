@@ -1,5 +1,10 @@
 playerHeight .equ 8
 playerMoveDistance .equ 4
+playerScreenMargin .equ 8
+playerStartingY .equ lcdHeight - playerHeight - playerScreenMargin
+playerXMin .equ playerScreenMargin
+playerXMax .equ lcdWidth - 16 - playerScreenMargin
+
 inputLeftRow .equ kbdG3
 inputLeftBit .equ kbit4
 inputRightRow .equ kbdG5
@@ -14,10 +19,10 @@ game_loop:
   call init_lcd
 _game_loop:
 ; Render the screen
-  ld a, black
+  xor a, a ; Sets to black ($00)
   call fill_screen
   ld a, playerHeight
-  ld b, lcdHeight - playerHeight - 8
+  ld b, playerStartingY
   ld de, (PlayerPosition)
   ld ix, SpritePlayer
   call put_sprite
@@ -28,7 +33,7 @@ _game_loop:
   ld (hl), 2
   xor a, a
 _game_loop_input_wait:
-  cp a, (hl)
+  cp (hl)
   jr nz, _game_loop_input_wait
   ld hl, inputLeftRow
   bit inputLeftBit, (hl)
@@ -47,12 +52,22 @@ _game_loop_input_wait:
 
 player_left:
   ld hl, (PlayerPosition)
+  ld bc, playerXMin
+  push hl
+  sbc hl, bc
+  pop hl
+  ret c
   sbc hl, de
   ld (PlayerPosition), hl
   ret
 
 player_right:
   ld hl, (PlayerPosition)
+  ld bc, playerXMax
+  push hl
+  sbc hl, bc
+  pop hl
+  ret p
   add hl, de
   ld (PlayerPosition), hl
   ret
