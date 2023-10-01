@@ -21,7 +21,7 @@ game_loop:
   xor a, a
 _game_loop:
 ; Render the screen
-  xor a, a ; Sets to black ($00)
+  xor a ; Sets to black ($00)
   call fill_screen
 
   call update_player_projectile

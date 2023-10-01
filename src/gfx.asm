@@ -18,17 +18,12 @@ fill_screen:
 ;     z
 ;     c
   ld hl, (RenderBuffer)
-  ld de, vBufferSize
-_fill_screen_loop:
-  dec de
+  ld de, (RenderBuffer)
+  inc de
   ld (hl), a
-  inc hl
-  push hl
-  ld hl, 0
-  sbc hl, de
-  pop hl
-  ret p
-  jr _fill_screen_loop
+  ld bc, lcdHeight * lcdWidth
+  ldir
+  ret
 
 put_sprite:
 ; Inputs:
