@@ -1,0 +1,8 @@
+[SpritePlayer]
+file = "player.png"
+
+[SpriteDebug]
+file = "debug.png"
+
+[SpriteProjectile]
+file = "projectile.png"

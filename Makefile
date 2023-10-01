@@ -8,4 +8,4 @@ clean:
 	rm -rf build/*
 
 sprite-gen:
-	cargo run -r --manifest-path "sprite-generator/Cargo.toml" -- -s "assets/sprites/" -o "build/sprites/"
+	cargo run -r --manifest-path "sprite-generator/Cargo.toml" -- -s "assets/sprites/sprites.toml" -o "build/sprites/"

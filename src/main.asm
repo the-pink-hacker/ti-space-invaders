@@ -3,6 +3,7 @@
 .list
 
 .org userMem - 2
+.assume ADL = 1
 .db tExtTok, tAsm84CeCmp
 start:
   call _RunIndicOff
