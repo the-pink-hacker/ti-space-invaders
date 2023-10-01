@@ -14,9 +14,11 @@ fill_screen:
 ;   Registers:
 ;     de
 ;     hl
-;   Flags:
-;     z
-;     c
+;     bc
+;   Flags (reset):
+;     n
+;     p/v
+;     h
   ld hl, (RenderBuffer)
   ld de, (RenderBuffer)
   inc de

@@ -6,3 +6,6 @@ file = "debug.png"
 
 [SpriteProjectile]
 file = "projectile.png"
+
+[SpriteEnemy1]
+file = "enemy_1a.png"
