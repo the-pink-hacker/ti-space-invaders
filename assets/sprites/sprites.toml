@@ -7,5 +7,23 @@ file = "debug.png"
 [SpriteProjectile]
 file = "projectile.png"
 
-[SpriteEnemy1]
+[SpriteEnemyDeath]
+file = "enemy_death.png"
+
+[SpriteEnemy1a]
 file = "enemy_1a.png"
+
+[SpriteEnemy1b]
+file = "enemy_1b.png"
+
+[SpriteEnemy2a]
+file = "enemy_2a.png"
+
+[SpriteEnemy2b]
+file = "enemy_2b.png"
+
+[SpriteEnemy3a]
+file = "enemy_3a.png"
+
+[SpriteEnemy3b]
+file = "enemy_3b.png"

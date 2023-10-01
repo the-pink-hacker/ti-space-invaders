@@ -14,6 +14,7 @@ start:
   call _NewLine
   call _PutS
   call _GetKeyRetOff
+  call initialize_keyboard
   call game_loop
 exit:
   call restore_keyboard
@@ -21,6 +22,13 @@ exit:
   call _ClrScrnFull
   call _HomeUp
   jp _DrawStatusBar
+
+initialize_keyboard:
+  di
+  ld hl, DI_MODE
+  ld (hl), 3
+  ei
+  ret
 
 restore_keyboard:
   ld hl, $0F50000

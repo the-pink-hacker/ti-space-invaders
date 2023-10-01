@@ -35,13 +35,6 @@ _game_loop:
   call swap_vbuffer
 
 ; Check for input
-  di
-  ld hl, DI_MODE
-  ld (hl), 2
-  xor a
-_game_loop_input_wait:
-  cp (hl)
-  jr nz, _game_loop_input_wait ; Wait for idle
   ld hl, inputLeftRow
   bit inputLeftBit, (hl)
   ld de, playerMoveDistance
@@ -57,7 +50,6 @@ _game_loop_input_wait:
 
   ld hl, inputExitRow
   bit inputExitBit, (hl)
-  ei
   ret nz
 
   jr _game_loop
@@ -100,12 +92,16 @@ update_enemies:
   ld ix, EnemyTable
   ld b, 44 ; #enemies
 _update_enemies_loop:
-  ld a, 8 ; Height
   push bc
-  ld b, (ix + 3) ; Y
   ld de, (ix) ; X
   push ix
-  ld ix, SpriteEnemy1
+  ld bc, 0
+  ld c, (ix + 4) ; Type
+  ld hl, EnemySpriteTable
+  add hl, bc
+  ld b, (ix + 3) ; Y
+  ld ix, (hl) ; *Sprite
+  ld a, 8 ; Height
   call put_sprite
   pop ix
   ld de, 5 ; Size
@@ -139,6 +135,14 @@ _update_player_projectile_sprite:
 
   ret
 
+point_box_collision:
+; Inputs:
+;   b  = Y
+;   de = X
+;   a  = Y-point
+;   hl = X-point
+  ret
+
 PlayerPosition:
   .dl (lcdWidth - spriteWidth) / 2
 
@@ -149,53 +153,60 @@ PlayerProjectileX:
 PlayerProjectileY:
   .db $00
 
+EnemySpriteTable:
+  .dl SpriteEnemyDeath ; Offset: 0
+  .dl SpriteEnemyDeath ; Offset: 3
+  .dl SpriteEnemy1a    ; Offset: 6
+  .dl SpriteEnemy2a    ; Offset: 9
+  .dl SpriteEnemy3a    ; Offset: 12
+
 ; 11x4     Size: 220
 ; Enemy    Size: 5
 ;   X      Size: 3, Offset: 0
 ;   Y      Size: 1, Offset: 3
 ;   Type   Size: 1, Offset: 4
 EnemyTable:
-  .db  72, 0, 0,  8, 2
-  .db  88, 0, 0,  8, 2
-  .db 104, 0, 0,  8, 2
-  .db 120, 0, 0,  8, 2
-  .db 136, 0, 0,  8, 2
-  .db 152, 0, 0,  8, 2
-  .db 168, 0, 0,  8, 2
-  .db 184, 0, 0,  8, 2
-  .db 200, 0, 0,  8, 2
-  .db 216, 0, 0,  8, 2
-  .db 232, 0, 0,  8, 2
-  .db  72, 0, 0, 24, 3
-  .db  88, 0, 0, 24, 3
-  .db 104, 0, 0, 24, 3
-  .db 120, 0, 0, 24, 3
-  .db 136, 0, 0, 24, 3
-  .db 152, 0, 0, 24, 3
-  .db 168, 0, 0, 24, 3
-  .db 184, 0, 0, 24, 3
-  .db 200, 0, 0, 24, 3
-  .db 216, 0, 0, 24, 3
-  .db 232, 0, 0, 24, 3
-  .db  72, 0, 0, 40, 4
-  .db  88, 0, 0, 40, 4
-  .db 104, 0, 0, 40, 4
-  .db 120, 0, 0, 40, 4
-  .db 136, 0, 0, 40, 4
-  .db 152, 0, 0, 40, 4
-  .db 168, 0, 0, 40, 4
-  .db 184, 0, 0, 40, 4
-  .db 200, 0, 0, 40, 4
-  .db 216, 0, 0, 40, 4
-  .db 232, 0, 0, 40, 4
-  .db  72, 0, 0, 56, 4
-  .db  88, 0, 0, 56, 4
-  .db 104, 0, 0, 56, 4
-  .db 120, 0, 0, 56, 4
-  .db 136, 0, 0, 56, 4
-  .db 152, 0, 0, 56, 4
-  .db 168, 0, 0, 56, 4
-  .db 184, 0, 0, 56, 4
-  .db 200, 0, 0, 56, 4
-  .db 216, 0, 0, 56, 4
-  .db 232, 0, 0, 56, 4
+  .db  72, 0, 0,  8,  6
+  .db  88, 0, 0,  8,  6
+  .db 104, 0, 0,  8,  6
+  .db 120, 0, 0,  8,  6
+  .db 136, 0, 0,  8,  6
+  .db 152, 0, 0,  8,  6
+  .db 168, 0, 0,  8,  6
+  .db 184, 0, 0,  8,  6
+  .db 200, 0, 0,  8,  6
+  .db 216, 0, 0,  8,  6
+  .db 232, 0, 0,  8,  6
+  .db  72, 0, 0, 24,  9
+  .db  88, 0, 0, 24,  9
+  .db 104, 0, 0, 24,  9
+  .db 120, 0, 0, 24,  9
+  .db 136, 0, 0, 24,  9
+  .db 152, 0, 0, 24,  9
+  .db 168, 0, 0, 24,  9
+  .db 184, 0, 0, 24,  9
+  .db 200, 0, 0, 24,  9
+  .db 216, 0, 0, 24,  9
+  .db 232, 0, 0, 24,  9
+  .db  72, 0, 0, 40, 12
+  .db  88, 0, 0, 40, 12
+  .db 104, 0, 0, 40, 12
+  .db 120, 0, 0, 40, 12
+  .db 136, 0, 0, 40, 12
+  .db 152, 0, 0, 40, 12
+  .db 168, 0, 0, 40, 12
+  .db 184, 0, 0, 40, 12
+  .db 200, 0, 0, 40, 12
+  .db 216, 0, 0, 40, 12
+  .db 232, 0, 0, 40, 12
+  .db  72, 0, 0, 56, 12
+  .db  88, 0, 0, 56, 12
+  .db 104, 0, 0, 56, 12
+  .db 120, 0, 0, 56, 12
+  .db 136, 0, 0, 56, 12
+  .db 152, 0, 0, 56, 12
+  .db 168, 0, 0, 56, 12
+  .db 184, 0, 0, 56, 12
+  .db 200, 0, 0, 56, 12
+  .db 216, 0, 0, 56, 12
+  .db 232, 0, 0, 56, 12

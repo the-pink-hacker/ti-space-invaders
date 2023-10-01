@@ -23,7 +23,7 @@ fill_screen:
   ld de, (RenderBuffer)
   inc de
   ld (hl), a
-  ld bc, lcdHeight * lcdWidth
+  ld bc, lcdHeight * lcdWidth - 1
   ldir
   ret
 
