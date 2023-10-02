@@ -1,25 +1,43 @@
 spriteWidth .equ 16
 playerHeight .equ 8
+enemyHeight .equ 8
+projectileHeight .equ 8
 playerMoveDistance .equ 4
+projectileMoveDistance .equ 4
 playerScreenMargin .equ 8
 playerStartingY .equ lcdHeight - playerHeight - playerScreenMargin
+playerStartingX .equ (lcdWidth - spriteWidth) / 2
 playerXMin .equ playerScreenMargin
 playerXMax .equ lcdWidth - spriteWidth - playerScreenMargin
+totalEnemies .equ 11 * 4
+enemyMemorySize .equ 5
 
-inputLeftRow .equ kbdG7
-inputLeftBit .equ kbitLeft
+; Enemy States
+;   Used for score and death check
+enemyStateDead      .equ 3 * 0
+enemyStateExplosion .equ 3 * 1
+enemyState1         .equ 3 * 2
+enemyState2         .equ 3 * 2
+enemyState3         .equ 3 * 2
+
+; Hotkeys
+inputLeftRow  .equ kbdG7
+inputLeftBit  .equ kbitLeft
 inputRightRow .equ kbdG7
 inputRightBit .equ kbitRight
-inputFireRow .equ kbdG1
-inputFireBit .equ kbit2nd
-inputExitRow .equ kbdG6
-inputExitBit .equ kbitClear
+inputFireRow  .equ kbdG1
+inputFireBit  .equ kbit2nd
+inputExitRow  .equ kbdG6
+inputExitBit  .equ kbitClear
 
 game_loop:
   call _ClrLCDAll
   call init_lcd
   xor a
 _game_loop:
+  ld hl, GameCounter
+  inc (hl)
+
   xor a ; Sets to black ($00)
   call fill_screen
 
@@ -50,9 +68,9 @@ _game_loop:
 
   ld hl, inputExitRow
   bit inputExitBit, (hl)
-  ret nz
-
-  jr _game_loop
+  ei
+  jr z, _game_loop
+  ret
 
 player_left:
   ld hl, (PlayerPosition)
@@ -90,7 +108,21 @@ player_fire:
 
 update_enemies:
   ld ix, EnemyTable
-  ld b, 44 ; #enemies
+  ld b, totalEnemies
+
+  ld a, (GameCounter)
+  sla a
+  cp 0
+  jr nz, _update_enemies_loop
+
+  ld hl, EnemySpriteTable + enemyState1
+  ld a, (hl)
+  xor spriteEnemy1BitmaskLs
+  ld (hl), a
+  inc hl
+  ld a, (hl)
+  xor spriteEnemy1BitmaskMs
+  ld (hl), a
 _update_enemies_loop:
   push bc
   ld de, (ix) ; X
@@ -104,7 +136,7 @@ _update_enemies_loop:
   ld a, 8 ; Height
   call put_sprite
   pop ix
-  ld de, 5 ; Size
+  ld de, enemyMemorySize
   add ix, de
   pop bc
   djnz _update_enemies_loop
@@ -117,7 +149,7 @@ update_player_projectile:
   ret z ; Return if not spawned
 
   ld a, (PlayerProjectileY) ; 19
-  sbc a, 4 ; Move projectile up
+  sbc a, projectileMoveDistance ; Move projectile up
   jr nc, _update_player_projectile_sprite
 
   ld (hl), 0 ; Despawn
@@ -127,8 +159,8 @@ _update_player_projectile_sprite:
   ld hl, PlayerProjectileY
   ld (hl), a ; Update Y
 
-  ld b, a         ; Y
-  ld a, 8         ; Height
+  ld b, a ; Y
+  ld a, projectileHeight ; Height
   ld de, (PlayerProjectileX)
   ld ix, SpriteProjectile
   call put_sprite
@@ -144,7 +176,7 @@ point_box_collision:
   ret
 
 PlayerPosition:
-  .dl (lcdWidth - spriteWidth) / 2
+  .dl playerStartingX
 
 PlayerProjectileSpawned:
   .db $00
@@ -152,6 +184,11 @@ PlayerProjectileX:
   .dl $000000
 PlayerProjectileY:
   .db $00
+
+; Counts up each frame.
+; Overflow expected.
+GameCounter:
+  .db $FF
 
 EnemySpriteTable:
   .dl SpriteEnemyDeath ; Offset: 0
@@ -166,47 +203,47 @@ EnemySpriteTable:
 ;   Y      Size: 1, Offset: 3
 ;   Type   Size: 1, Offset: 4
 EnemyTable:
-  .db  72, 0, 0,  8,  6
-  .db  88, 0, 0,  8,  6
-  .db 104, 0, 0,  8,  6
-  .db 120, 0, 0,  8,  6
-  .db 136, 0, 0,  8,  6
-  .db 152, 0, 0,  8,  6
-  .db 168, 0, 0,  8,  6
-  .db 184, 0, 0,  8,  6
-  .db 200, 0, 0,  8,  6
-  .db 216, 0, 0,  8,  6
-  .db 232, 0, 0,  8,  6
-  .db  72, 0, 0, 24,  9
-  .db  88, 0, 0, 24,  9
-  .db 104, 0, 0, 24,  9
-  .db 120, 0, 0, 24,  9
-  .db 136, 0, 0, 24,  9
-  .db 152, 0, 0, 24,  9
-  .db 168, 0, 0, 24,  9
-  .db 184, 0, 0, 24,  9
-  .db 200, 0, 0, 24,  9
-  .db 216, 0, 0, 24,  9
-  .db 232, 0, 0, 24,  9
-  .db  72, 0, 0, 40, 12
-  .db  88, 0, 0, 40, 12
-  .db 104, 0, 0, 40, 12
-  .db 120, 0, 0, 40, 12
-  .db 136, 0, 0, 40, 12
-  .db 152, 0, 0, 40, 12
-  .db 168, 0, 0, 40, 12
-  .db 184, 0, 0, 40, 12
-  .db 200, 0, 0, 40, 12
-  .db 216, 0, 0, 40, 12
-  .db 232, 0, 0, 40, 12
-  .db  72, 0, 0, 56, 12
-  .db  88, 0, 0, 56, 12
-  .db 104, 0, 0, 56, 12
-  .db 120, 0, 0, 56, 12
-  .db 136, 0, 0, 56, 12
-  .db 152, 0, 0, 56, 12
-  .db 168, 0, 0, 56, 12
-  .db 184, 0, 0, 56, 12
-  .db 200, 0, 0, 56, 12
-  .db 216, 0, 0, 56, 12
-  .db 232, 0, 0, 56, 12
+  .db  72, 0, 0,  8, enemyState1
+  .db  88, 0, 0,  8, enemyState1
+  .db 104, 0, 0,  8, enemyState1
+  .db 120, 0, 0,  8, enemyState1
+  .db 136, 0, 0,  8, enemyState1
+  .db 152, 0, 0,  8, enemyState1
+  .db 168, 0, 0,  8, enemyState1
+  .db 184, 0, 0,  8, enemyState1
+  .db 200, 0, 0,  8, enemyState1
+  .db 216, 0, 0,  8, enemyState1
+  .db 232, 0, 0,  8, enemyState2
+  .db  72, 0, 0, 24, enemyState2
+  .db  88, 0, 0, 24, enemyState2
+  .db 104, 0, 0, 24, enemyState2
+  .db 120, 0, 0, 24, enemyState2
+  .db 136, 0, 0, 24, enemyState2
+  .db 152, 0, 0, 24, enemyState2
+  .db 168, 0, 0, 24, enemyState2
+  .db 184, 0, 0, 24, enemyState2
+  .db 200, 0, 0, 24, enemyState2
+  .db 216, 0, 0, 24, enemyState2
+  .db 232, 0, 0, 24, enemyState2
+  .db  72, 0, 0, 40, enemyState3
+  .db  88, 0, 0, 40, enemyState3
+  .db 104, 0, 0, 40, enemyState3
+  .db 120, 0, 0, 40, enemyState3
+  .db 136, 0, 0, 40, enemyState3
+  .db 152, 0, 0, 40, enemyState3
+  .db 168, 0, 0, 40, enemyState3
+  .db 184, 0, 0, 40, enemyState3
+  .db 200, 0, 0, 40, enemyState3
+  .db 216, 0, 0, 40, enemyState3
+  .db 232, 0, 0, 40, enemyState3
+  .db  72, 0, 0, 56, enemyState3
+  .db  88, 0, 0, 56, enemyState3
+  .db 104, 0, 0, 56, enemyState3
+  .db 120, 0, 0, 56, enemyState3
+  .db 136, 0, 0, 56, enemyState3
+  .db 152, 0, 0, 56, enemyState3
+  .db 168, 0, 0, 56, enemyState3
+  .db 184, 0, 0, 56, enemyState3
+  .db 200, 0, 0, 56, enemyState3
+  .db 216, 0, 0, 56, enemyState3
+  .db 232, 0, 0, 56, enemyState3
