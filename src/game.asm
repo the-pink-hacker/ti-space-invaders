@@ -17,8 +17,8 @@ enemyMemorySize .equ 5
 enemyStateDead      .equ 3 * 0
 enemyStateExplosion .equ 3 * 1
 enemyState1         .equ 3 * 2
-enemyState2         .equ 3 * 2
-enemyState3         .equ 3 * 2
+enemyState2         .equ 3 * 3
+enemyState3         .equ 3 * 4
 
 ; Hotkeys
 inputLeftRow  .equ kbdG7
@@ -123,6 +123,25 @@ update_enemies:
   ld a, (hl)
   xor spriteEnemy1BitmaskMs
   ld (hl), a
+
+  ld hl, EnemySpriteTable + enemyState2
+  ld a, (hl)
+  xor spriteEnemy2BitmaskLs
+  ld (hl), a
+  inc hl
+  ld a, (hl)
+  xor spriteEnemy2BitmaskMs
+  ld (hl), a
+
+  ld hl, EnemySpriteTable + enemyState3
+  ld a, (hl)
+  xor spriteEnemy3BitmaskLs
+  ld (hl), a
+  inc hl
+  ld a, (hl)
+  xor spriteEnemy3BitmaskMs
+  ld (hl), a
+
 _update_enemies_loop:
   push bc
   ld de, (ix) ; X
