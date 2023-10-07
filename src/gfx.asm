@@ -27,36 +27,64 @@ fill_screen:
   ldir
   ret
 
-put_sprite:
+put_sprite_16:
 ; Inputs:
 ;   de = x
 ;   b = y (>1)
 ;   a = height
 ;   ix = *sprite
 ; Destorys:
-;   Registers:
-;     a
-;     de
+;   All
   ld hl, (RenderBuffer)
   add hl, de
   ld de, lcdWidth
-_put_sprite_yshift_loop:
+_put_sprite_16_yshift_loop:
   add hl, de
-  djnz _put_sprite_yshift_loop ; y=0 => y=255
+  djnz _put_sprite_16_yshift_loop ; y=0 => y=255
   ex de, hl ; de=*sprite_origin
   ld b, a ; Moves height into b
   push ix ; Move *sprite into hl
   pop hl
-_put_sprite_render_loop:
+_put_sprite_16_render_loop:
   push bc ; 1: height
-  ld bc, spriteWidth
+  ld bc, spriteWidthBig
   ldir
   ex de, hl
-  ld bc, lcdWidth - spriteWidth
+  ld bc, lcdWidth - spriteWidthBig
   add hl, bc
   ex de, hl
   pop bc ; 1: height
-  djnz _put_sprite_render_loop
+  djnz _put_sprite_16_render_loop
+  ret
+
+put_sprite_8:
+; Inputs:
+;   de = x
+;   b = y (>1)
+;   a = height
+;   ix = *sprite
+; Destorys:
+;   All
+  ld hl, (RenderBuffer)
+  add hl, de
+  ld de, lcdWidth
+_put_sprite_8_yshift_loop:
+  add hl, de
+  djnz _put_sprite_8_yshift_loop ; y=0 => y=255
+  ex de, hl ; de=*sprite_origin
+  ld b, a ; Moves height into b
+  push ix ; Move *sprite into hl
+  pop hl
+_put_sprite_8_render_loop:
+  push bc ; 1: height
+  ld bc, spriteWidthSmall
+  ldir
+  ex de, hl
+  ld bc, lcdWidth - spriteWidthSmall
+  add hl, bc
+  ex de, hl
+  pop bc ; 1: height
+  djnz _put_sprite_8_render_loop
   ret
 
 init_lcd:

@@ -1,4 +1,5 @@
-spriteWidth .equ 16
+spriteWidthSmall .equ 8
+spriteWidthBig .equ 16
 playerHeight .equ 8
 enemyHeight .equ 8
 projectileHeight .equ 8
@@ -6,9 +7,9 @@ playerMoveDistance .equ 4
 projectileMoveDistance .equ 4
 playerScreenMargin .equ 8
 playerStartingY .equ lcdHeight - playerHeight - playerScreenMargin
-playerStartingX .equ (lcdWidth - spriteWidth) / 2
+playerStartingX .equ (lcdWidth - spriteWidthBig) / 2
 playerXMin .equ playerScreenMargin
-playerXMax .equ lcdWidth - spriteWidth - playerScreenMargin
+playerXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
 totalEnemies .equ 11 * 4
 enemyMemorySize .equ 5
 
@@ -48,7 +49,7 @@ _game_loop:
   ld b, playerStartingY
   ld de, (PlayerPosition)
   ld ix, SpritePlayer
-  call put_sprite
+  call put_sprite_16
 
   call swap_vbuffer
 
@@ -101,6 +102,8 @@ player_fire:
   ret nz  ; Return if already spawned
   ld (hl), 1 ; Set spawned
   ld hl, (PlayerPosition)
+  ld bc, (spriteWidthBig - spriteWidthSmall) / 2 ; Center to player
+  add hl, bc
   ld (PlayerProjectileX), hl
   ld hl, PlayerProjectileY
   ld (hl), playerStartingY ; Set y
@@ -112,7 +115,7 @@ update_enemies:
 
   ld a, (GameCounter)
   sla a
-  cp 0
+  or a
   jr nz, _update_enemies_loop
 
   ld hl, EnemySpriteTable + enemyState1
@@ -141,23 +144,26 @@ update_enemies:
   ld a, (hl)
   xor spriteEnemy3BitmaskMs
   ld (hl), a
-
 _update_enemies_loop:
-  push bc
+  ld a, (ix + 4) ; Type
+  or a
+  jr z, _update_enemies_loop_skip ; Enemy is dead
   ld de, (ix) ; X
-  push ix
-  ld bc, 0
-  ld c, (ix + 4) ; Type
   ld hl, EnemySpriteTable
+  push bc
+  ld bc, 0
+  ld c, a
   add hl, bc
   ld b, (ix + 3) ; Y
+  push ix
   ld ix, (hl) ; *Sprite
   ld a, 8 ; Height
-  call put_sprite
+  call put_sprite_16
   pop ix
+  pop bc
+_update_enemies_loop_skip:
   ld de, enemyMemorySize
   add ix, de
-  pop bc
   djnz _update_enemies_loop
   ret
 
@@ -169,29 +175,19 @@ update_player_projectile:
 
   ld a, (PlayerProjectileY) ; 19
   sbc a, projectileMoveDistance ; Move projectile up
-  jr nc, _update_player_projectile_sprite
+  jr c, _update_player_projectile_despawn
 
-  ld (hl), 0 ; Despawn
-  ret
-
-_update_player_projectile_sprite:
   ld hl, PlayerProjectileY
   ld (hl), a ; Update Y
 
   ld b, a ; Y
-  ld a, projectileHeight ; Height
+  ld a, projectileHeight
   ld de, (PlayerProjectileX)
   ld ix, SpriteProjectile
-  call put_sprite
+  jp put_sprite_8
 
-  ret
-
-point_box_collision:
-; Inputs:
-;   b  = Y
-;   de = X
-;   a  = Y-point
-;   hl = X-point
+_update_player_projectile_despawn:
+  ld (hl), 0
   ret
 
 PlayerPosition:
@@ -232,7 +228,7 @@ EnemyTable:
   .db 184, 0, 0,  8, enemyState1
   .db 200, 0, 0,  8, enemyState1
   .db 216, 0, 0,  8, enemyState1
-  .db 232, 0, 0,  8, enemyState2
+  .db 232, 0, 0,  8, enemyState1
   .db  72, 0, 0, 24, enemyState2
   .db  88, 0, 0, 24, enemyState2
   .db 104, 0, 0, 24, enemyState2
