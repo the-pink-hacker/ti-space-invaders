@@ -57,6 +57,12 @@ _put_sprite_16_render_loop:
   djnz _put_sprite_16_render_loop
   ret
 
+put_char:
+  ld de, 0
+  ld b, 1
+  ld a, spriteWidthSmall
+  ld ix, SpriteCharA
+
 put_sprite_8:
 ; Inputs:
 ;   de = x

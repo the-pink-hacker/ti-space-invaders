@@ -7,11 +7,19 @@ use std::{
 
 use anyhow::{bail, Context};
 use clap::Parser;
+use linked_hash_map::LinkedHashMap;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
+struct PointerTable {
+    name: String,
+    offset: Option<u8>,
+}
+
+#[derive(Debug, Deserialize)]
 struct SpriteMetadata {
-    file: PathBuf,
+    sprites: LinkedHashMap<String, PathBuf>,
+    pointer_table: Option<PointerTable>,
 }
 
 #[derive(Debug, Parser)]
@@ -39,57 +47,70 @@ fn compress_color_space(rgb: [u8; 3]) -> String {
 fn generate_sprite(
     sprite_path: &PathBuf,
     out_path: &PathBuf,
-    sprite_name: &str,
+    sprite_collection_name: &str,
     metadata: &SpriteMetadata,
 ) -> anyhow::Result<()> {
-    let source_image_path = sprite_path
-        .parent()
-        .with_context(|| "Sprite path was empty.")?
-        .join(metadata.file.clone());
+    let mut output = String::new();
 
-    {
-        let is_png = source_image_path
-            .extension()
-            .with_context(|| {
-                format!(
-                    "Failed to get extension of file: {}",
-                    source_image_path.display()
-                )
-            })?
-            .to_ascii_lowercase()
-            == "png";
+    for (sprite_suffix, sprite_name) in metadata.sprites.iter() {
+        let source_image_path = sprite_path
+            .parent()
+            .with_context(|| "Sprite path was empty.")?
+            .join(sprite_name);
 
-        if !is_png {
-            bail!("Image format not supported; PNGs are only supported.");
-        };
+        {
+            let is_png = source_image_path
+                .extension()
+                .with_context(|| {
+                    format!(
+                        "Failed to get extension of file: {}",
+                        source_image_path.display()
+                    )
+                })?
+                .to_ascii_lowercase()
+                == "png";
+
+            if !is_png {
+                bail!("Image format not supported; PNGs are only supported.");
+            };
+        }
+
+        let sprite_png = image::io::Reader::open(source_image_path.clone())?.decode()?;
+
+        let width = sprite_png.width();
+
+        let pixels = sprite_png
+            .as_rgb8()
+            .with_context(|| format!("Image wasn't 8-bit color: {}", source_image_path.display()))?
+            .pixels()
+            .map(|pixel| compress_color_space(pixel.0))
+            .collect::<Vec<_>>();
+        let pixels = pixels.chunks_exact(width as usize).map(|f| f.join(","));
+
+        output += &format!("Sprite{}:", sprite_suffix);
+
+        for pixel in pixels {
+            output += &format!("\n.db {}", pixel);
+        }
+
+        output.push('\n');
     }
 
-    let sprite_png = image::io::Reader::open(source_image_path.clone())?.decode()?;
+    if let Some(pointer_table) = &metadata.pointer_table {
+        output += &format!("{}:", pointer_table.name);
 
-    let width = sprite_png.width();
+        if let Some(offset) = pointer_table.offset {
+            for _ in 0..offset {
+                output += &format!("\n.dl 0");
+            }
+        }
 
-    let pixels = sprite_png
-        .as_rgb8()
-        .with_context(|| format!("Image wasn't 8-bit color: {}", source_image_path.display()))?
-        .pixels()
-        .map(|pixel| compress_color_space(pixel.0))
-        .collect::<Vec<_>>();
-    let pixels = pixels.chunks_exact(width as usize).map(|f| f.join(","));
-
-    let mut output = format!("{}:", sprite_name);
-
-    for pixel in pixels {
-        output += &format!("\n.db {}", pixel);
+        for (sprite_suffix, _) in metadata.sprites.iter() {
+            output += &format!("\n.dl Sprite{}", sprite_suffix);
+        }
     }
 
-    let sprite_out = out_path.join(format!(
-        "{}.asm",
-        source_image_path
-            .file_stem()
-            .expect("Failed to get file stem")
-            .to_str()
-            .unwrap(),
-    ));
+    let sprite_out = out_path.join(format!("{}.asm", sprite_collection_name));
 
     fs::create_dir_all(out_path.clone())?;
 

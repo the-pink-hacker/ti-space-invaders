@@ -1,29 +1,65 @@
-[SpritePlayer]
-file = "player.png"
+[player.sprites]
+Player = "player.png"
 
-[SpriteDebug]
-file = "debug.png"
+[debug.sprites]
+Debug = "debug.png"
 
-[SpriteProjectile]
-file = "projectile.png"
+[projectile.sprites]
+Projectile = "projectile.png"
 
-[SpriteEnemyDeath]
-file = "enemy_death.png"
+[enemy_death.sprites]
+EnemyDeath = "enemy_death.png"
 
-[SpriteEnemy1a]
-file = "enemy_1a.png"
+[enemy_1.sprites]
+Enemy1a = "enemy_1a.png"
+Enemy1b = "enemy_1b.png"
 
-[SpriteEnemy1b]
-file = "enemy_1b.png"
+[enemy_2.sprites]
+Enemy2a = "enemy_2a.png"
+Enemy2b = "enemy_2b.png"
 
-[SpriteEnemy2a]
-file = "enemy_2a.png"
+[enemy_3.sprites]
+Enemy3a = "enemy_3a.png"
+Enemy3b = "enemy_3b.png"
 
-[SpriteEnemy2b]
-file = "enemy_2b.png"
+[characters.pointer_table]
+name = "CharacterTable"
+offset = 1
 
-[SpriteEnemy3a]
-file = "enemy_3a.png"
-
-[SpriteEnemy3b]
-file = "enemy_3b.png"
+[characters.sprites]
+Char0 = "character_0.png"
+Char1 = "character_1.png"
+Char2 = "character_2.png"
+Char3 = "character_3.png"
+Char4 = "character_4.png"
+Char5 = "character_5.png"
+Char6 = "character_6.png"
+Char7 = "character_7.png"
+Char8 = "character_8.png"
+Char9 = "character_9.png"
+CharA = "character_a.png"
+CharB = "character_b.png"
+CharC = "character_c.png"
+CharD = "character_d.png"
+CharE = "character_e.png"
+CharF = "character_f.png"
+CharG = "character_g.png"
+CharH = "character_h.png"
+CharI = "character_i.png"
+CharJ = "character_j.png"
+CharK = "character_k.png"
+CharL = "character_l.png"
+CharM = "character_m.png"
+CharN = "character_n.png"
+CharO = "character_o.png"
+CharP = "character_p.png"
+CharQ = "character_q.png"
+CharR = "character_r.png"
+CharS = "character_s.png"
+CharT = "character_t.png"
+CharU = "character_u.png"
+CharV = "character_v.png"
+CharW = "character_w.png"
+CharX = "character_x.png"
+CharY = "character_y.png"
+CharZ = "character_z.png"

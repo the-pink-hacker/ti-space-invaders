@@ -51,6 +51,8 @@ _game_loop:
   ld ix, SpritePlayer
   call put_sprite_16
 
+  call put_char
+
   call swap_vbuffer
 
 ; Check for input
