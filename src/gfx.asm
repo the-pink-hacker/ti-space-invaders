@@ -30,7 +30,7 @@ fill_screen:
 put_sprite_16:
 ; Inputs:
 ;   de = x
-;   b = y (>1)
+;   b = y (>0)
 ;   a = height
 ;   ix = *sprite
 ; Destorys:
@@ -57,16 +57,55 @@ _put_sprite_16_render_loop:
   djnz _put_sprite_16_render_loop
   ret
 
+put_string:
+; Inputs:
+;   hl = *str
+;   de = x
+;   b = y (>0)
+  ld a, (hl)
+  cp $FF ; Exit if $FF
+  ret z
+  push hl ; TODO: Look into shadow registers
+  push de
+  push bc
+  call put_char
+  pop bc
+  pop de
+
+  ld hl, spriteWidthSmall
+  add hl, de
+  ex de, hl
+
+  pop hl
+  inc hl
+  jr put_string
+
 put_char:
-  ld de, 0
-  ld b, 1
+; Input:
+;   de = x
+;   b = y
+;   a = char_index
+; Destroys:
+;   All
+  ld ix, CharacterTable
+  or a
+  jr z, _put_char_index_loop_skip
+  push bc
+  ld b, a
+_put_char_index_loop: ; ix += char_index * 3
+  inc ix
+  inc ix
+  inc ix
+  djnz _put_char_index_loop
+  pop bc
+_put_char_index_loop_skip:
   ld a, spriteWidthSmall
-  ld ix, SpriteCharA
+  ld ix, (ix)
 
 put_sprite_8:
 ; Inputs:
 ;   de = x
-;   b = y (>1)
+;   b = y (>0)
 ;   a = height
 ;   ix = *sprite
 ; Destorys:

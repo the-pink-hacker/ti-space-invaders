@@ -24,7 +24,6 @@ Enemy3b = "enemy_3b.png"
 
 [characters.pointer_table]
 name = "CharacterTable"
-offset = 1
 
 [characters.sprites]
 Char0 = "character_0.png"
