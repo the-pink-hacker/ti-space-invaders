@@ -8,7 +8,9 @@ This has only been tested with the TI-84 Plus CE.
 ### Controls
 
 `dpad`: Left and right
+
 `2nd`:  Fire
+
 `clear`: Exit
 
 ## Build
