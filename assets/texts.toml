@@ -1,5 +1,5 @@
 [Alpha]
-text = "TheQuickBrownFoxJumpsOverTheLazyDog"
+text = "You can now put spaces"
 
 [Numbers]
-text = "0123456789"
+text = " 0123456789"

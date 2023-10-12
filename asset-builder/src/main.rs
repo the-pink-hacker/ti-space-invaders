@@ -156,9 +156,10 @@ fn generate_text(text_args: TextArgs) -> anyhow::Result<()> {
 
         for character in source.text.chars() {
             let converted_character = match character {
+                '0'..='9' => character as u8 & 0b00001111, // '0' => 0
                 'A'..='Z' => character as u8 - 'A' as u8 + 10,
                 'a'..='z' => character as u8 - 'a' as u8 + 10,
-                '0'..='9' => character as u8 & 0b00001111, // '0' => 0
+                ' ' => 36,
                 _ => bail!("character '{}', not supported", character),
             };
 

@@ -55,10 +55,6 @@ _game_loop:
   ld b, 128
   ld de, 0
   call put_string
-
-  ld hl, TextNumbers
-  ld b, 136
-  ld de, 0
   call put_string
 
   call swap_vbuffer

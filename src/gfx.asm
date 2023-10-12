@@ -62,9 +62,15 @@ put_string:
 ;   hl = *str
 ;   de = x
 ;   b = y (>0)
+; Outputs:
+;   hl = *str_end
+;   de = x_end
+;   b = y
   ld a, (hl)
   cp $FF ; Exit if $FF
-  ret z
+  jr z, _put_string_exit
+  cp 36 ; Space
+  jr z, _put_string_space
   push hl ; TODO: Look into shadow registers
   push de
   push bc
@@ -79,6 +85,19 @@ put_string:
   pop hl
   inc hl
   jr put_string
+
+_put_string_space:
+  push hl
+  ld hl, spriteWidthSmall
+  add hl, de
+  ex de, hl
+  pop hl
+  inc hl
+  jr put_string
+
+_put_string_exit:
+  inc hl
+  ret
 
 put_char:
 ; Input:
