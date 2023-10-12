@@ -1,24 +1,28 @@
 sprites := $(wildcard assets/sprites/*.png)
-scripts := $(wildcard src/*.asm)
+scripts := $(wildcard src/*.asm src/**/*.asm)
 sprites-generated := $(wildcard src/generated/sprites/*.asm)
 asset-builder := asset-builder/target/release/asset-builder
 
 .PHONY: all
-all: $(sprites-generated) | build/space.8xp
+all: $(sprites-generated) $(texts-generated) | build/space.8xp
 
 .PHONY: clean 
 clean:
-	rm -rf "build/*.8xp"
+	rm -rf "$(wildcard build/*.8xp)"
 
-$(sprites-generated): $(sprites) assets/sprites/sprites.toml
+$(sprites-generated): $(sprites) assets/sprites/sprites.toml $(asset-builder)
 	rm -f "$(sprites-generated)"
-	./$(asset-builder) -s "assets/sprites/sprites.toml" -o "src/generated/sprites/"
+	./$(asset-builder) sprites "assets/sprites/sprites.toml" "src/generated/sprites/"
 	$(info Generated sprites.)
 
-$(asset-builder):
+src/generated/texts.asm: $(sprites) assets/texts.toml $(asset-builder)
+	./$(asset-builder) text "assets/texts.toml" "src/generated/texts.asm"
+	$(info Generated texts.)
+
+$(asset-builder): asset-builder/Cargo.toml $(wildcard asset-builder/src/*.rs)
 	cargo build --release --manifest-path "asset-builder/Cargo.toml"
 
-build/space.8xp: $(scripts) build/ $(sprites-generated)
+build/space.8xp: $(scripts) build/
 	spasm -E "src/main.asm" "build/space.8xp"
 	$(info Built game)
 

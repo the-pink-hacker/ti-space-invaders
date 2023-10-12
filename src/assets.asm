@@ -1,3 +1,4 @@
+; Sprites
 
 #include "src/generated/sprites/player.asm"
 ;#include "src/generated/sprites/debug.asm"
@@ -14,3 +15,6 @@ spriteEnemy2BitmaskMs .equ ((SpriteEnemy2a & $00FF00) >> 8) ^ ((SpriteEnemy2b & 
 spriteEnemy2BitmaskLs .equ (SpriteEnemy2a & $0000FF) ^ (SpriteEnemy2b & $0000FF)
 spriteEnemy3BitmaskMs .equ ((SpriteEnemy3a & $00FF00) >> 8) ^ ((SpriteEnemy3b & $00FF00) >> 8)
 spriteEnemy3BitmaskLs .equ (SpriteEnemy3a & $0000FF) ^ (SpriteEnemy3b & $0000FF)
+
+; Text
+#include "src/generated/texts.asm"

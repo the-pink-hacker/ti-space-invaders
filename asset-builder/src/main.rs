@@ -1,5 +1,4 @@
 use std::{
-    collections::HashMap,
     fs::{self, File},
     io::Write,
     path::PathBuf,
@@ -23,14 +22,32 @@ struct SpriteMetadata {
 }
 
 #[derive(Debug, Parser)]
-struct Args {
-    #[arg(short, long)]
+struct SpriteArgs {
     sprite_path: PathBuf,
-    #[arg(short, long)]
     out_path: PathBuf,
 }
 
-fn load_sprite_metadata(sprite_file: &PathBuf) -> anyhow::Result<HashMap<String, SpriteMetadata>> {
+#[derive(Debug, Parser)]
+struct TextArgs {
+    text_source: PathBuf,
+    out_path: PathBuf,
+}
+
+#[derive(Debug, clap::Subcommand)]
+enum Subcommand {
+    Sprites(SpriteArgs),
+    Text(TextArgs),
+}
+
+#[derive(Debug, Parser)]
+struct Args {
+    #[command(subcommand)]
+    subcommand: Subcommand,
+}
+
+fn load_sprite_metadata(
+    sprite_file: &PathBuf,
+) -> anyhow::Result<LinkedHashMap<String, SpriteMetadata>> {
     let file = fs::read_to_string(sprite_file)?;
     Ok(toml::from_str(&file)?)
 }
@@ -120,14 +137,61 @@ fn generate_sprite(
     Ok(())
 }
 
+#[derive(Debug, Deserialize)]
+struct TextSource {
+    text: String,
+}
+
+fn generate_text(text_args: TextArgs) -> anyhow::Result<()> {
+    let source_file = fs::read_to_string(text_args.text_source)?;
+
+    let parsed_source = toml::from_str::<LinkedHashMap<String, TextSource>>(&source_file)?;
+
+    let mut output = String::new();
+
+    for (name, source) in parsed_source.iter() {
+        output += &format!("Text{}:", name);
+
+        let mut characters = Vec::with_capacity(source.text.len());
+
+        for character in source.text.chars() {
+            let converted_character = match character {
+                'A'..='Z' => character as u8 - 'A' as u8 + 10,
+                'a'..='z' => character as u8 - 'a' as u8 + 10,
+                '0'..='9' => character as u8 & 0b00001111, // '0' => 0
+                _ => bail!("character '{}', not supported", character),
+            };
+
+            characters.push(converted_character.to_string());
+        }
+
+        output += &format!("\n.db {}\n.db $FF\n", characters.join(","));
+    }
+
+    let mut output_file = File::create(text_args.out_path)?;
+    output_file.write_all(output.as_bytes())?;
+
+    Ok(())
+}
+
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    let metadata = load_sprite_metadata(&args.sprite_path)?;
+    match args.subcommand {
+        Subcommand::Sprites(sprite_args) => {
+            let metadata = load_sprite_metadata(&sprite_args.sprite_path)?;
 
-    for (sprite_name, metadata) in metadata.iter() {
-        generate_sprite(&args.sprite_path, &args.out_path, sprite_name, metadata)?;
+            for (sprite_name, metadata) in metadata.iter() {
+                generate_sprite(
+                    &sprite_args.sprite_path,
+                    &sprite_args.out_path,
+                    sprite_name,
+                    metadata,
+                )?;
+            }
+
+            Ok(())
+        }
+        Subcommand::Text(text_args) => generate_text(text_args),
     }
-
-    Ok(())
 }

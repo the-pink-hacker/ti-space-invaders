@@ -51,7 +51,7 @@ restore_keyboard:
 
 #include "src/game.asm"
 #include "src/gfx.asm"
-#include "src/sprites.asm"
+#include "src/assets.asm"
 
 StringTitle:
   .db "Space Invaders", 0

@@ -51,8 +51,13 @@ _game_loop:
   ld ix, SpritePlayer
   call put_sprite_16
 
-  ld hl, TextTest
+  ld hl, TextAlpha
   ld b, 128
+  ld de, 0
+  call put_string
+
+  ld hl, TextNumbers
+  ld b, 136
   ld de, 0
   call put_string
 
@@ -269,6 +274,3 @@ EnemyTable:
   .db 200, 0, 0, 56, enemyState3
   .db 216, 0, 0, 56, enemyState3
   .db 232, 0, 0, 56, enemyState3
-
-TextTest:
-  .db 6, 9, $FF
