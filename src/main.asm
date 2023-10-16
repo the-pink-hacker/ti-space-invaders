@@ -7,14 +7,9 @@
 .db tExtTok, tAsm84CeCmp
 start:
   call _RunIndicOff
-  call _ClrLCDAll
-  call _HomeUp
-  ld hl, StringTitle
-  call _PutS
-  call _NewLine
-  call _PutS
-  call _GetKeyRetOff
   call initialize_keyboard
+  call _ClrLCDAll
+  call init_lcd
   call game_loop
 exit:
   call restore_keyboard
@@ -22,6 +17,10 @@ exit:
   call _ClrScrnFull
   call _HomeUp
   jp _DrawStatusBar
+
+; Credit
+; Not actually used
+.db "https://github.thepinkhacker.com/ti-space-invaders"
 
 initialize_keyboard:
   di
@@ -52,11 +51,5 @@ restore_keyboard:
 #include "src/game.asm"
 #include "src/gfx.asm"
 #include "src/assets.asm"
-
-StringTitle:
-  .db "Space Invaders", 0
-
-StringPressStart:
-  .db "Press any key to start...", 0
 
 .end

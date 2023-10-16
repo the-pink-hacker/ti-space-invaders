@@ -32,9 +32,8 @@ inputExitRow  .equ kbdG6
 inputExitBit  .equ kbitClear
 
 game_loop:
-  call _ClrLCDAll
-  call init_lcd
-  xor a
+  ;call _ClrLCDAll
+  ;xor a
 _game_loop:
   ld hl, GameCounter
   inc (hl)
