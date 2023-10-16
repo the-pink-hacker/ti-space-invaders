@@ -7,7 +7,12 @@
 #include "src/generated/sprites/enemy_1.asm"
 #include "src/generated/sprites/enemy_2.asm"
 #include "src/generated/sprites/enemy_3.asm"
+#include "src/generated/sprites/enemy_4.asm"
 #include "src/generated/sprites/characters.asm"
+#include "src/generated/sprites/shield_1.asm"
+#include "src/generated/sprites/shield_2.asm"
+#include "src/generated/sprites/shield_3.asm"
+#include "src/generated/sprites/shield_4.asm"
 
 spriteEnemy1BitmaskMs .equ ((SpriteEnemy1a & $00FF00) >> 8) ^ ((SpriteEnemy1b & $00FF00) >> 8)
 spriteEnemy1BitmaskLs .equ (SpriteEnemy1a & $0000FF) ^ (SpriteEnemy1b & $0000FF)

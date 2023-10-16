@@ -1,5 +1,7 @@
 [player.sprites]
 Player = "player.png"
+PlayerDeathA = "player_death_a.png"
+PlayerDeathB = "player_death_b.png"
 
 [debug.sprites]
 Debug = "debug.png"
@@ -21,6 +23,9 @@ Enemy2b = "enemy_2b.png"
 [enemy_3.sprites]
 Enemy3a = "enemy_3a.png"
 Enemy3b = "enemy_3b.png"
+
+[enemy_4.sprites]
+Enemy4 = "enemy_4.png"
 
 [characters.pointer_table]
 name = "CharacterTable"
@@ -62,3 +67,29 @@ CharW = "character_w.png"
 CharX = "character_x.png"
 CharY = "character_y.png"
 CharZ = "character_z.png"
+
+[shield_1.sprites]
+Sheild1_0 = "shield_1_0.png"
+Sheild1_3 = "shield_1_3.png"
+Sheild1_4 = "shield_1_4.png"
+
+[shield_2.sprites]
+Sheild2_0 = "shield_2_0.png"
+Sheild2_1 = "shield_2_1.png"
+Sheild2_2 = "shield_2_2.png"
+Sheild2_3 = "shield_2_3.png"
+Sheild2_4 = "shield_2_4.png"
+
+[shield_3.sprites]
+Sheild3_0 = "shield_3_0.png"
+Sheild3_1 = "shield_3_1.png"
+Sheild3_2 = "shield_3_2.png"
+Sheild3_3 = "shield_3_3.png"
+Sheild3_4 = "shield_3_4.png"
+
+[shield_4.sprites]
+Sheild4_0 = "shield_4_0.png"
+Sheild4_1 = "shield_4_1.png"
+Sheild4_2 = "shield_4_2.png"
+Sheild4_3 = "shield_4_3.png"
+Sheild4_4 = "shield_4_4.png"
