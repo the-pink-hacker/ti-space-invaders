@@ -3,6 +3,7 @@ spriteWidthBig .equ 16
 playerHeight .equ 8
 enemyHeight .equ 8
 enemyCollisionWidth .equ 11
+enemyCollisionHeight .equ enemyHeight
 projectileHeight .equ 8
 playerMoveDistance .equ 4
 projectileMoveDistance .equ 4
@@ -159,8 +160,7 @@ _update_enemies_loop:
   ld a, (PlayerProjectileSpawned)
   or a
   jr z, _update_enemies_loop_collision_skip ; Projectile not spawned
-  ;ld de
-  ;ld a
+  ld a, (PlayerProjectileY)
   ld hl, (PlayerProjectileX)
   ld de, spriteWidthSmall / 2 ; Center of projectile
   add hl, de
@@ -215,10 +215,15 @@ collision_enemy:
 ; Input:
 ;   ix = *enemy
 ;   hl = projectile_x
+;   a = projectile_y
 ; Output:
 ;   carry = Collision
+; Destorys:
+;   a
+;   hl
+;   bc
   ld bc, (ix) ; enemy_left
-  inc bc
+  inc bc ; Left offset
   inc bc
   inc bc
   sbc hl, bc
@@ -226,9 +231,15 @@ collision_enemy:
 
   ld bc, enemyCollisionWidth
   sbc hl, bc
-  jr nc, _collision_failed ; Right bounds
+  ret nc ; Right bounds
 
-  ret
+  ld b, (ix + 3) ; enemy_top
+  sbc a, b
+  jr c, _collision_failed ; Top bounds
+
+  ld b, enemyCollisionHeight
+  sbc a, b
+  ret ; Bottom bounds
 _collision_failed:
   or a ; Reset carry
   ret ; Set carry
