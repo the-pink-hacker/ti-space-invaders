@@ -5,8 +5,7 @@ enemyHeight .equ 8
 enemyCollisionWidth .equ 11
 enemyCollisionHeight .equ enemyHeight
 projectileHeight .equ 8
-playerMoveDistance .equ 4
-projectileMoveDistance .equ 4
+projectileMoveDistance .equ 2
 playerScreenMargin .equ 8
 playerStartingY .equ lcdHeight - playerHeight - playerScreenMargin
 playerStartingX .equ (lcdWidth - spriteWidthBig) / 2
@@ -34,6 +33,7 @@ inputExitRow  .equ kbdG6
 inputExitBit  .equ kbitClear
 
 game_loop:
+.echo game_loop
 _game_loop:
   ld hl, GameCounter
   inc (hl)
@@ -50,12 +50,6 @@ _game_loop:
   ld ix, SpritePlayer
   call put_sprite_16
 
-  ld hl, TextAlpha
-  ld b, 128
-  ld de, 0
-  call put_string
-  call put_string
-
   call swap_vbuffer
 
 ; Check for input
@@ -63,7 +57,6 @@ _game_loop:
 
   ld hl, inputLeftRow
   bit inputLeftBit, (hl)
-  ld de, playerMoveDistance
   call nz, player_left
 
   ld hl, inputRightRow
@@ -87,7 +80,8 @@ player_left:
   sbc hl, bc
   pop hl
   ret c
-  sbc hl, de
+  dec hl
+  dec hl
   ld (PlayerPosition), hl
   ret
 
@@ -98,7 +92,8 @@ player_right:
   sbc hl, bc
   pop hl
   ret p
-  add hl, de
+  inc hl
+  inc hl
   ld (PlayerPosition), hl
   ret
 
@@ -162,12 +157,13 @@ _update_enemies_loop:
   jr z, _update_enemies_loop_collision_skip ; Projectile not spawned
   ld a, (PlayerProjectileY)
   ld hl, (PlayerProjectileX)
-  ld de, spriteWidthSmall / 2 ; Center of projectile
+  ld de, (spriteWidthSmall / 2) + 1 ; Center of projectile
   add hl, de
   call collision_enemy
   jr nc, _update_enemies_loop_collision_skip ; Didn't collide
   xor a
   ld (ix + 4), a ; Kill enemy
+  ld (PlayerProjectileSpawned), a ; Despawn projectile
   jr _update_enemies_loop_skip
 _update_enemies_loop_collision_skip:
   ld de, (ix) ; X
@@ -194,7 +190,7 @@ update_player_projectile:
   cp (hl)
   ret z ; Return if not spawned
 
-  ld a, (PlayerProjectileY) ; 19
+  ld a, (PlayerProjectileY)
   sbc a, projectileMoveDistance ; Move projectile up
   jr c, _update_player_projectile_despawn
 
