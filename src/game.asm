@@ -2,6 +2,7 @@ spriteWidthSmall .equ 8
 spriteWidthBig .equ 16
 playerHeight .equ 8
 enemyHeight .equ 8
+enemyCollisionWidth .equ 11
 projectileHeight .equ 8
 playerMoveDistance .equ 4
 projectileMoveDistance .equ 4
@@ -32,8 +33,6 @@ inputExitRow  .equ kbdG6
 inputExitBit  .equ kbitClear
 
 game_loop:
-  ;call _ClrLCDAll
-  ;xor a
 _game_loop:
   ld hl, GameCounter
   inc (hl)
@@ -152,14 +151,29 @@ update_enemies:
   xor spriteEnemy3BitmaskMs
   ld (hl), a
 _update_enemies_loop:
+  push bc
   ld a, (ix + 4) ; Type
   or a
   jr z, _update_enemies_loop_skip ; Enemy is dead
+
+  ld a, (PlayerProjectileSpawned)
+  or a
+  jr z, _update_enemies_loop_collision_skip ; Projectile not spawned
+  ;ld de
+  ;ld a
+  ld hl, (PlayerProjectileX)
+  ld de, spriteWidthSmall / 2 ; Center of projectile
+  add hl, de
+  call collision_enemy
+  jr nc, _update_enemies_loop_collision_skip ; Didn't collide
+  xor a
+  ld (ix + 4), a ; Kill enemy
+  jr _update_enemies_loop_skip
+_update_enemies_loop_collision_skip:
   ld de, (ix) ; X
   ld hl, EnemySpriteTable
-  push bc
   ld bc, 0
-  ld c, a
+  ld c, (ix + 4) ; Type
   add hl, bc
   ld b, (ix + 3) ; Y
   push ix
@@ -167,8 +181,8 @@ _update_enemies_loop:
   ld a, 8 ; Height
   call put_sprite_16
   pop ix
-  pop bc
 _update_enemies_loop_skip:
+  pop bc
   ld de, enemyMemorySize
   add ix, de
   djnz _update_enemies_loop
@@ -196,6 +210,28 @@ update_player_projectile:
 _update_player_projectile_despawn:
   ld (hl), 0
   ret
+
+collision_enemy:
+; Input:
+;   ix = *enemy
+;   hl = projectile_x
+; Output:
+;   carry = Collision
+  ld bc, (ix) ; enemy_left
+  inc bc
+  inc bc
+  inc bc
+  sbc hl, bc
+  jr c, _collision_failed ; Left bounds
+
+  ld bc, enemyCollisionWidth
+  sbc hl, bc
+  jr nc, _collision_failed ; Right bounds
+
+  ret
+_collision_failed:
+  or a ; Reset carry
+  ret ; Set carry
 
 PlayerPosition:
   .dl playerStartingX
