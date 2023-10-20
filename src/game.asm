@@ -4,6 +4,7 @@ playerHeight .equ 8
 enemyHeight .equ 8
 enemyCollisionWidth .equ 11
 enemyCollisionHeight .equ enemyHeight
+enemyMoveDistance .equ 4
 projectileHeight .equ 8
 projectileMoveDistance .equ 2
 playerScreenMargin .equ 8
@@ -13,14 +14,6 @@ playerXMin .equ playerScreenMargin
 playerXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
 totalEnemies .equ 11 * 4
 enemyMemorySize .equ 5
-
-; Enemy States
-;   Used for score and death check
-enemyStateDead      .equ 3 * 0
-enemyStateExplosion .equ 3 * 1
-enemyState1         .equ 3 * 2
-enemyState2         .equ 3 * 3
-enemyState3         .equ 3 * 4
 
 ; Hotkeys
 inputLeftRow  .equ kbdG7
@@ -33,11 +26,24 @@ inputExitRow  .equ kbdG6
 inputExitBit  .equ kbitClear
 
 game_loop:
-.echo game_loop
 _game_loop:
   ld hl, GameCounter
   inc (hl)
 
+  ; Set enemy move flag
+  ld a, (hl) ; a=0 -> 1/256 frames
+  sla a ; a=0 -> 1/128 frames
+  sla a ; a=0 -> 1/64 frames
+  ld hl, GameFlags
+  jr z, _game_loop_set_enemy_move
+
+  res gameFlagEnemyMove, (hl) ; Reset flag
+  jr _game_loop_enemy_move_skip
+
+_game_loop_set_enemy_move:
+  set gameFlagEnemyMove, (hl) ; Set flag
+
+_game_loop_enemy_move_skip:
   xor a ; Sets to black ($00)
   call fill_screen
 
@@ -115,10 +121,9 @@ update_enemies:
   ld ix, EnemyTable
   ld b, totalEnemies
 
-  ld a, (GameCounter)
-  sla a
-  or a
-  jr nz, _update_enemies_loop
+  ld a, (GameFlags)
+  bit gameFlagEnemyMove, a
+  jr z, _update_enemies_loop
 
   ld hl, EnemySpriteTable + enemyState1
   ld a, (hl)
@@ -151,6 +156,25 @@ _update_enemies_loop:
   ld a, (ix + 4) ; Type
   or a
   jr z, _update_enemies_loop_skip ; Enemy is dead
+
+  ld hl, (ix) ; Enemy x
+
+  ld a, (GameFlags)
+  bit gameFlagEnemyMove, a
+  jr z, _update_enemies_move_skip ; Jump if not move
+  
+  ld bc, enemyMoveDistance
+
+  bit gameFlagEnemyDirection, a
+  jr nz, _update_enemies_move_right  
+
+  sbc hl, bc ; Move left
+  jr _update_enemies_move_skip
+
+_update_enemies_move_right:
+  add hl, bc ; Move right
+_update_enemies_move_skip:
+  ld (ix), hl ; Update x
 
   ld a, (PlayerProjectileSpawned)
   or a
@@ -238,7 +262,7 @@ collision_enemy:
   ret ; Bottom bounds
 _collision_failed:
   or a ; Reset carry
-  ret ; Set carry
+  ret
 
 PlayerPosition:
   .dl playerStartingX
@@ -252,8 +276,30 @@ PlayerProjectileY:
 
 ; Counts up each frame.
 ; Overflow expected.
+; First frame is 0.
 GameCounter:
   .db $FF
+
+;;; Game Flags ;;;
+; Is turned on for frames where the enemies should move.
+; 0: Don't move (default)
+; 1: Move
+gameFlagEnemyMove .equ 0
+; Toggles every move.
+; 0: Left
+; 1: Right (default)
+gameFlagEnemyDirection .equ 1
+
+GameFlags:
+  .db %00000010
+
+;;; Enemy States ;;;
+;   Used for score and death check
+enemyStateDead      .equ 3 * 0
+enemyStateExplosion .equ 3 * 1
+enemyState1         .equ 3 * 2
+enemyState2         .equ 3 * 3
+enemyState3         .equ 3 * 4
 
 EnemySpriteTable:
   .dl SpriteEnemyDeath ; Offset: 0
