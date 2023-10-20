@@ -12,6 +12,8 @@ playerStartingY .equ lcdHeight - playerHeight - playerScreenMargin
 playerStartingX .equ (lcdWidth - spriteWidthBig) / 2
 playerXMin .equ playerScreenMargin
 playerXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
+enemyXMin .equ playerScreenMargin
+enemyXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
 totalEnemies .equ 11 * 4
 enemyMemorySize .equ 5
 
@@ -122,6 +124,14 @@ update_enemies:
   ld b, totalEnemies
 
   ld a, (GameFlags)
+
+  bit gameFlagEnemyEdge, a ; Check edge flag.
+  jr z, _update_enemies_move_check
+  
+  xor a, gameFlagEnemyDirectionBitmask | gameFlagEnemyDownBitmask | gameFlagEnemyEdgeBitmask ; Invert direction, set down, reset edge
+  ld (GameFlags), a
+
+_update_enemies_move_check:
   bit gameFlagEnemyMove, a
   jr z, _update_enemies_loop
 
@@ -155,39 +165,65 @@ _update_enemies_loop:
   push bc
   ld a, (ix + 4) ; Type
   or a
-  jr z, _update_enemies_loop_skip ; Enemy is dead
+  jp z, _update_enemies_loop_skip ; Enemy is dead.
 
   ld hl, (ix) ; Enemy x
 
   ld a, (GameFlags)
+
+  bit gameFlagEnemyDown, a
+  jr z, _update_enemies_loop_move_check
+
+  ld a, (ix + 3) ; Enemy y
+  ld b, enemyHeight
+  add a, b
+  ld (ix + 3), a
+  jr _update_enemies_loop_move_skip
+
+_update_enemies_loop_move_check:
   bit gameFlagEnemyMove, a
-  jr z, _update_enemies_move_skip ; Jump if not move
+  jr z, _update_enemies_loop_move_skip ; Jump if not move.
   
   ld bc, enemyMoveDistance
 
   bit gameFlagEnemyDirection, a
-  jr nz, _update_enemies_move_right  
+  jr nz, _update_enemies_loop_move_right  
 
   sbc hl, bc ; Move left
-  jr _update_enemies_move_skip
-
-_update_enemies_move_right:
-  add hl, bc ; Move right
-_update_enemies_move_skip:
   ld (ix), hl ; Update x
 
+  ld bc, enemyXMin
+  sbc hl, bc
+  jr nc, _update_enemies_loop_move_skip
+
+  set gameFlagEnemyEdge, a
+  ld (GameFlags), a
+
+  jr _update_enemies_loop_move_skip
+
+_update_enemies_loop_move_right:
+  add hl, bc ; Move right
+  ld (ix), hl ; Update x
+
+  ld bc, enemyXMax
+  sbc hl, bc
+  jr c, _update_enemies_loop_move_skip
+
+  set gameFlagEnemyEdge, a
+  ld (GameFlags), a
+_update_enemies_loop_move_skip:
   ld a, (PlayerProjectileSpawned)
   or a
-  jr z, _update_enemies_loop_collision_skip ; Projectile not spawned
+  jr z, _update_enemies_loop_collision_skip ; Projectile not spawned.
   ld a, (PlayerProjectileY)
   ld hl, (PlayerProjectileX)
-  ld de, (spriteWidthSmall / 2) + 1 ; Center of projectile
+  ld de, (spriteWidthSmall / 2) + 1 ; Center of projectile.
   add hl, de
   call collision_enemy
-  jr nc, _update_enemies_loop_collision_skip ; Didn't collide
+  jr nc, _update_enemies_loop_collision_skip ; Didn't collide.
   xor a
   ld (ix + 4), a ; Kill enemy
-  ld (PlayerProjectileSpawned), a ; Despawn projectile
+  ld (PlayerProjectileSpawned), a ; Despawn projectile.
   jr _update_enemies_loop_skip
 _update_enemies_loop_collision_skip:
   ld de, (ix) ; X
@@ -205,17 +241,23 @@ _update_enemies_loop_skip:
   pop bc
   ld de, enemyMemorySize
   add ix, de
-  djnz _update_enemies_loop
+
+  dec b ; djnz
+  jp nz, _update_enemies_loop
+  
+  ld hl, GameFlags
+  res gameFlagEnemyDown, (hl)
+
   ret
 
 update_player_projectile:
   ld hl, PlayerProjectileSpawned
   xor a
   cp (hl)
-  ret z ; Return if not spawned
+  ret z ; Return if not spawned.
 
   ld a, (PlayerProjectileY)
-  sbc a, projectileMoveDistance ; Move projectile up
+  sbc a, projectileMoveDistance ; Move projectile up.
   jr c, _update_player_projectile_despawn
 
   ld hl, PlayerProjectileY
@@ -282,13 +324,24 @@ GameCounter:
 
 ;;; Game Flags ;;;
 ; Is turned on for frames where the enemies should move.
-; 0: Don't move (default)
-; 1: Move
-gameFlagEnemyMove .equ 0
+; 0: False (default)
+; 1: True
+gameFlagEnemyMove      .equ 0
 ; Toggles every move.
 ; 0: Left
 ; 1: Right (default)
 gameFlagEnemyDirection .equ 1
+gameFlagEnemyDirectionBitmask .equ 1 << gameFlagEnemyDirection
+; Whether the enemies should move down this frame.
+; 0: False (default)
+; 1: True
+gameFlagEnemyDown      .equ 2
+gameFlagEnemyDownBitmask     .equ 1 << gameFlagEnemyDown
+; A enemy has moved to the edge of the screen.
+; 0: False (default)
+; 1: True
+gameFlagEnemyEdge      .equ 3
+gameFlagEnemyEdgeBitmask     .equ 1 << gameFlagEnemyEdge
 
 GameFlags:
   .db %00000010
