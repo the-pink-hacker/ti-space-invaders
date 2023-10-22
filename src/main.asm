@@ -19,7 +19,7 @@ exit:
   jp _DrawStatusBar
 
 ; Credit
-; Not actually used
+; Not actually used in program
 .db "https://github.thepinkhacker.com/ti-space-invaders"
 
 initialize_keyboard:
@@ -50,6 +50,7 @@ restore_keyboard:
 
 #include "src/game.asm"
 #include "src/gfx.asm"
+#include "src/math.asm"
 #include "src/assets.asm"
 
 .end

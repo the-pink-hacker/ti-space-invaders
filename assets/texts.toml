@@ -1,5 +1,5 @@
-[Alpha]
-text = "You can now put spaces"
+[Score]
+text = "Score 00000000"
 
-[Numbers]
-text = " 0123456789"
+[Lives]
+text = "Lives "

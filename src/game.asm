@@ -58,6 +58,8 @@ _game_loop_enemy_move_skip:
   ld ix, SpritePlayer
   call put_sprite_16
 
+  call update_text
+
   call swap_vbuffer
 
 ; Check for input
@@ -273,6 +275,21 @@ _update_player_projectile_despawn:
   ld (hl), 0
   ret
 
+update_text:
+  ld hl, ScoreCounter
+  ld bc, (hl)
+  inc bc
+  ld (hl), bc
+  ld ix, TextScore + 6
+  call number_to_string
+
+  ld hl, TextScore
+  ld de, 8
+  ld b, 8
+  call put_string
+
+  ret
+
 collision_enemy:
 ; Input:
 ;   ix = *enemy
@@ -321,6 +338,10 @@ PlayerProjectileY:
 ; First frame is 0.
 GameCounter:
   .db $FF
+
+ScoreCounter:
+  .dl $000000
+  .echo ScoreCounter
 
 ;;; Game Flags ;;;
 ; Is turned on for frames where the enemies should move.
