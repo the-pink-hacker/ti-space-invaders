@@ -1,3 +1,6 @@
+NibbleBuffer:
+  .db $00
+
 number_to_string:
 ; Input:
 ;   hl = *number (24-bit)
@@ -63,6 +66,97 @@ _number_to_string_1_5:
   daa
   ld e, a
 _number_to_string_1_6:
+  ld a, (hl)
+  bit 6, a
+  jr z, _number_to_string_1_7
+
+  ; Add 64.
+
+  ; Add 4.
+  ld a, e
+  add a, $04
+  daa
+  ld e, a
+
+  ; Add 60.
+  push hl
+  ld hl, NibbleBuffer
+  ld (hl), e
+  ld a, d
+  rrd
+  push af
+  ld a, (hl)
+  add a, $06
+  daa
+
+  ld (hl), a
+  pop af
+  rld
+  ld d, a
+  ld e, (hl)
+  pop hl
+_number_to_string_1_7:
+  ld a, (hl)
+  bit 7, a
+  jr z, _number_to_string_2_0
+
+  ; Add 128.
+
+  ; Add 8.
+  ld a, e
+  add a, 8
+  daa
+  ld e, a
+
+  ; Add 120.
+  push hl
+  ld hl, NibbleBuffer
+  ld (hl), e
+  ld a, d
+  rrd
+  push af
+  ld a, (hl)
+  add a, $12
+  daa
+
+  ld (hl), a
+  pop af
+  rld
+  ld d, a
+  ld e, (hl)
+  pop hl
+_number_to_string_2_0:
+  inc hl
+  ld a, (hl)
+  bit 0, a
+  jr z, _number_to_string_2_1
+
+  ; Add 256.
+
+  ; Add 6.
+  ld a, e
+  add a, 6
+  daa
+  ld e, a
+
+  ; Add 250.
+  push hl
+  ld hl, NibbleBuffer
+  ld (hl), e
+  ld a, d
+  rrd
+  push af
+  ld a, (hl)
+  add a, $25
+  daa
+
+  ld (hl), a
+  pop af
+  rld
+  ld d, a
+  ld e, (hl)
+  pop hl
+_number_to_string_2_1:
 _number_to_string_end:
   ld a, $0F
   and b
