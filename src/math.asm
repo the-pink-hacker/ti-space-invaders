@@ -4,8 +4,65 @@ number_to_string:
 ;   ix = *output (8-bytes)
 ; Output:
 ;   String is placed at *output
-  ld bc, $1234
-  ld de, $5678
+  ld bc, 0
+  ld de, 0
+
+  ld a, (hl)
+  bit 0, a
+  jr z, _number_to_string_1_1
+
+  ld a, $01 ; daa unnecessary.
+            ; Always valid BCD.
+  ld e, a
+
+_number_to_string_1_1:
+  ld a, (hl)
+  bit 1, a
+  jr z, _number_to_string_1_2
+
+  ld a, e
+  add a, $02 ; daa unnecessary.
+             ; Always valid BCD.
+	     
+  ld e, a
+_number_to_string_1_2:
+  ld a, (hl)
+  bit 2, a
+  jr z, _number_to_string_1_3
+
+  ld a, e
+  add a, $04 ; daa unnecessary.
+             ; Always valid BCD.
+	     
+  ld e, a
+_number_to_string_1_3:
+  ld a, (hl)
+  bit 3, a
+  jr z, _number_to_string_1_4
+
+  ld a, e
+  add a, $08
+  daa
+  ld e, a
+_number_to_string_1_4:
+  ld a, (hl)
+  bit 4, a
+  jr z, _number_to_string_1_5
+
+  ld a, e
+  add a, $16
+  daa
+  ld e, a
+_number_to_string_1_5:
+  ld a, (hl)
+  bit 5, a
+  jr z, _number_to_string_1_6
+
+  ld a, e
+  add a, $32
+  daa
+  ld e, a
+_number_to_string_1_6:
 _number_to_string_end:
   ld a, $0F
   and b
