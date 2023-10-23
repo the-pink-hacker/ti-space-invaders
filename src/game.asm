@@ -276,13 +276,17 @@ _update_player_projectile_despawn:
   ret
 
 update_text:
+  ld a, (GameFlags)
+  bit gameFlagScoreUpdate, a
+  jr z, _update_text_display
+
   ld hl, ScoreCounter
   ld bc, (hl)
   inc bc
   ld (hl), bc
   ld ix, TextScore + 6
   call number_to_string
-
+_update_text_display:
   ld hl, TextScore
   ld de, 8
   ld b, 8
@@ -363,9 +367,13 @@ gameFlagEnemyDownBitmask     .equ 1 << gameFlagEnemyDown
 ; 1: True
 gameFlagEnemyEdge      .equ 3
 gameFlagEnemyEdgeBitmask     .equ 1 << gameFlagEnemyEdge
+; Is set when the score should update.
+; 0: False (default)
+; 1: True
+gameFlagScoreUpdate    .equ 4
 
 GameFlags:
-  .db %00000010
+  .db %00010010
 
 ;;; Enemy States ;;;
 ;   Used for score and death check
