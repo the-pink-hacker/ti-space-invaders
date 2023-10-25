@@ -281,9 +281,6 @@ update_text:
   jr z, _update_text_display
 
   ld hl, ScoreCounter
-  ld bc, (hl)
-  inc bc
-  ld (hl), bc
   ld ix, TextScore + 6
   call number_to_string
 _update_text_display:
@@ -344,8 +341,7 @@ GameCounter:
   .db $FF
 
 ScoreCounter:
-  .dl $000000
-  .echo ScoreCounter
+  .dl $FFFFFF
 
 ;;; Game Flags ;;;
 ; Is turned on for frames where the enemies should move.
