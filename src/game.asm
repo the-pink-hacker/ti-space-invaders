@@ -281,6 +281,9 @@ update_text:
   jr z, _update_text_display
 
   ld hl, ScoreCounter
+  ld bc, (hl)
+  inc bc
+  ld (hl), bc
   ld ix, TextScore + 6
   call number_to_string
 _update_text_display:
