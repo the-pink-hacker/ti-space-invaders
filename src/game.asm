@@ -17,6 +17,10 @@ enemyXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
 totalEnemies .equ 11 * 4
 enemyMemorySize .equ 5
 
+enemyScore1 .equ 30
+enemyScore2 .equ 20
+enemyScore3 .equ 10
+
 ; Hotkeys
 inputLeftRow  .equ kbdG7
 inputLeftBit  .equ kbitLeft
@@ -223,6 +227,20 @@ _update_enemies_loop_move_skip:
   add hl, de
   call collision_enemy
   jr nc, _update_enemies_loop_collision_skip ; Didn't collide.
+
+  ld hl, EnemyScoreTable
+  ld de, 0
+  ld e, (ix + 4)
+  add hl, de
+  ld hl, (hl) ; Score for killing enemy.
+
+  ld de, (ScoreCounter)
+  add hl, de
+  ld (ScoreCounter), hl
+
+  ld hl, GameFlags
+  set gameFlagScoreUpdate, (hl)
+
   xor a
   ld (ix + 4), a ; Kill enemy
   ld (PlayerProjectileSpawned), a ; Despawn projectile.
@@ -276,16 +294,16 @@ _update_player_projectile_despawn:
   ret
 
 update_text:
-  ld a, (GameFlags)
-  bit gameFlagScoreUpdate, a
+  ld hl, GameFlags
+  bit gameFlagScoreUpdate, (hl)
   jr z, _update_text_display
 
+  res gameFlagScoreUpdate, (hl)
+
   ld hl, ScoreCounter
-  ld bc, (hl)
-  inc bc
-  ld (hl), bc
   ld ix, TextScore + 6
   call number_to_string
+
 _update_text_display:
   ld hl, TextScore
   ld de, 8
@@ -344,7 +362,7 @@ GameCounter:
   .db $FF
 
 ScoreCounter:
-  .dl $FFFFFF
+  .dl 0
 
 ;;; Game Flags ;;;
 ; Is turned on for frames where the enemies should move.
@@ -372,7 +390,7 @@ gameFlagEnemyEdgeBitmask     .equ 1 << gameFlagEnemyEdge
 gameFlagScoreUpdate    .equ 4
 
 GameFlags:
-  .db %00010010
+  .db %00000010
 
 ;;; Enemy States ;;;
 ;   Used for score and death check
@@ -383,11 +401,17 @@ enemyState2         .equ 3 * 3
 enemyState3         .equ 3 * 4
 
 EnemySpriteTable:
-  .dl SpriteEnemyDeath ; Offset: 0
+  .dl 0 ; Dead
   .dl SpriteEnemyDeath ; Offset: 3
   .dl SpriteEnemy1a    ; Offset: 6
   .dl SpriteEnemy2a    ; Offset: 9
   .dl SpriteEnemy3a    ; Offset: 12
+
+EnemyScoreTable:
+  .dl 0, 0 ; Death, death animation.
+  .dl enemyScore1 ; Offset: 6
+  .dl enemyScore2 ; Offset: 9
+  .dl enemyScore3 ; Offset: 12
 
 ; 11x4     Size: 220
 ; Enemy    Size: 5
