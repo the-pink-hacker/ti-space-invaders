@@ -14,8 +14,12 @@ playerXMin .equ playerScreenMargin
 playerXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
 enemyXMin .equ playerScreenMargin
 enemyXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
-totalEnemies .equ 11 * 4
+enemyColumns .equ 11
+enemyRows    .equ 5
+totalEnemies .equ enemyColumns * enemyRows
 enemyMemorySize .equ 5
+enemyOffsetX .equ 72
+enemyOffsetY .equ 32
 
 enemyScore1 .equ 30
 enemyScore2 .equ 20
@@ -32,6 +36,7 @@ inputExitRow  .equ kbdG6
 inputExitBit  .equ kbitClear
 
 game_loop:
+  call setup_enemy_table
 _game_loop:
   ld hl, GameCounter
   inc (hl)
@@ -324,25 +329,109 @@ collision_enemy:
 ;   hl
 ;   bc
   ld bc, (ix) ; enemy_left
-  inc bc ; Left offset
+  inc bc ; Left offset.
   inc bc
   inc bc
   sbc hl, bc
-  jr c, _collision_failed ; Left bounds
+  jr c, _collision_failed ; Left bounds.
 
   ld bc, enemyCollisionWidth
   sbc hl, bc
-  ret nc ; Right bounds
+  ret nc ; Right bounds.
 
   ld b, (ix + 3) ; enemy_top
   sbc a, b
-  jr c, _collision_failed ; Top bounds
+  jr c, _collision_failed ; Top bounds.
 
   ld b, enemyCollisionHeight
   sbc a, b
-  ret ; Bottom bounds
+  ret ; Bottom bounds.
 _collision_failed:
-  or a ; Reset carry
+  or a ; Reset carry.
+  ret
+
+setup_enemy_table:
+  ld ix, EnemyTable
+  ld de, spriteWidthBig
+
+  ; Row 1
+  ld a, enemyOffsetY
+  ld b, enemyColumns
+  ld c, enemyState1
+  ld hl, enemyOffsetX
+_setup_enemy_table_row_1:
+  ld (ix), hl ; X position.
+  ld (ix + 3), a ; Y position.
+  ld (ix + 4), c ; Enemy state
+  add hl, de
+  push de
+  ld de, enemyMemorySize
+  add ix, de
+  pop de
+  djnz _setup_enemy_table_row_1
+
+  ; Row 2
+  add a, e
+  ld b, enemyColumns
+  ld c, enemyState2
+  ld hl, enemyOffsetX
+_setup_enemy_table_row_2:
+  ld (ix), hl ; X position.
+  ld (ix + 3), a ; Y position.
+  ld (ix + 4), c ; Enemy state
+  add hl, de
+  push de
+  ld de, enemyMemorySize
+  add ix, de
+  pop de
+  djnz _setup_enemy_table_row_2
+
+  ; Row 3
+  add a, e
+  ld b, enemyColumns
+  ld hl, enemyOffsetX
+_setup_enemy_table_row_3:
+  ld (ix), hl ; X position.
+  ld (ix + 3), a ; Y position.
+  ld (ix + 4), c ; Enemy state
+  add hl, de
+  push de
+  ld de, enemyMemorySize
+  add ix, de
+  pop de
+  djnz _setup_enemy_table_row_3
+
+  ; Row 4
+  add a, e
+  ld b, enemyColumns
+  ld c, enemyState3
+  ld hl, enemyOffsetX
+_setup_enemy_table_row_4:
+  ld (ix), hl ; X position.
+  ld (ix + 3), a ; Y position.
+  ld (ix + 4), c ; Enemy state
+  add hl, de
+  push de
+  ld de, enemyMemorySize
+  add ix, de
+  pop de
+  djnz _setup_enemy_table_row_4
+
+  ; Row 2
+  add a, e
+  ld b, enemyColumns
+  ld hl, enemyOffsetX
+_setup_enemy_table_row_5:
+  ld (ix), hl ; X position.
+  ld (ix + 3), a ; Y position.
+  ld (ix + 4), c ; Enemy state
+  add hl, de
+  push de
+  ld de, enemyMemorySize
+  add ix, de
+  pop de
+  djnz _setup_enemy_table_row_5
+
   ret
 
 PlayerPosition:
@@ -419,47 +508,58 @@ EnemyScoreTable:
 ;   Y      Size: 1, Offset: 3
 ;   Type   Size: 1, Offset: 4
 EnemyTable:
-  .db  72, 0, 0,  8, enemyState1
-  .db  88, 0, 0,  8, enemyState1
-  .db 104, 0, 0,  8, enemyState1
-  .db 120, 0, 0,  8, enemyState1
-  .db 136, 0, 0,  8, enemyState1
-  .db 152, 0, 0,  8, enemyState1
-  .db 168, 0, 0,  8, enemyState1
-  .db 184, 0, 0,  8, enemyState1
-  .db 200, 0, 0,  8, enemyState1
-  .db 216, 0, 0,  8, enemyState1
-  .db 232, 0, 0,  8, enemyState1
-  .db  72, 0, 0, 24, enemyState2
-  .db  88, 0, 0, 24, enemyState2
-  .db 104, 0, 0, 24, enemyState2
-  .db 120, 0, 0, 24, enemyState2
-  .db 136, 0, 0, 24, enemyState2
-  .db 152, 0, 0, 24, enemyState2
-  .db 168, 0, 0, 24, enemyState2
-  .db 184, 0, 0, 24, enemyState2
-  .db 200, 0, 0, 24, enemyState2
-  .db 216, 0, 0, 24, enemyState2
-  .db 232, 0, 0, 24, enemyState2
-  .db  72, 0, 0, 40, enemyState3
-  .db  88, 0, 0, 40, enemyState3
-  .db 104, 0, 0, 40, enemyState3
-  .db 120, 0, 0, 40, enemyState3
-  .db 136, 0, 0, 40, enemyState3
-  .db 152, 0, 0, 40, enemyState3
-  .db 168, 0, 0, 40, enemyState3
-  .db 184, 0, 0, 40, enemyState3
-  .db 200, 0, 0, 40, enemyState3
-  .db 216, 0, 0, 40, enemyState3
-  .db 232, 0, 0, 40, enemyState3
-  .db  72, 0, 0, 56, enemyState3
-  .db  88, 0, 0, 56, enemyState3
-  .db 104, 0, 0, 56, enemyState3
-  .db 120, 0, 0, 56, enemyState3
-  .db 136, 0, 0, 56, enemyState3
-  .db 152, 0, 0, 56, enemyState3
-  .db 168, 0, 0, 56, enemyState3
-  .db 184, 0, 0, 56, enemyState3
-  .db 200, 0, 0, 56, enemyState3
-  .db 216, 0, 0, 56, enemyState3
-  .db 232, 0, 0, 56, enemyState3
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
+  .db 0, 0, 0, 0, 0
