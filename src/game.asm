@@ -21,6 +21,13 @@ enemyMemorySize .equ 5
 enemyOffsetX .equ 72
 enemyOffsetY .equ 32
 
+; 11x5     Size: 275
+; Enemy    Size: 5
+;   X      Size: 3, Offset: 0
+;   Y      Size: 1, Offset: 3
+;   Type   Size: 1, Offset: 4
+enemyTable .equ pixelShadow2
+
 enemyScore1 .equ 30
 enemyScore2 .equ 20
 enemyScore3 .equ 10
@@ -131,7 +138,7 @@ player_fire:
   ret
 
 update_enemies:
-  ld ix, EnemyTable
+  ld ix, enemyTable
   ld b, totalEnemies
 
   ld a, (GameFlags)
@@ -351,7 +358,7 @@ _collision_failed:
   ret
 
 setup_enemy_table:
-  ld ix, EnemyTable
+  ld ix, enemyTable
   ld de, spriteWidthBig
 
   ; Row 1
@@ -501,65 +508,3 @@ EnemyScoreTable:
   .dl enemyScore1 ; Offset: 6
   .dl enemyScore2 ; Offset: 9
   .dl enemyScore3 ; Offset: 12
-
-; 11x4     Size: 220
-; Enemy    Size: 5
-;   X      Size: 3, Offset: 0
-;   Y      Size: 1, Offset: 3
-;   Type   Size: 1, Offset: 4
-EnemyTable:
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
-  .db 0, 0, 0, 0, 0
