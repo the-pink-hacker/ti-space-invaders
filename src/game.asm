@@ -1,3 +1,4 @@
+startingFrame .equ $FF
 spriteWidthSmall .equ 8
 spriteWidthBig .equ 16
 playerHeight .equ 8
@@ -43,8 +44,11 @@ inputExitRow  .equ kbdG6
 inputExitBit  .equ kbitClear
 
 game_loop:
-  call setup_enemy_table
 _game_loop:
+  ld a, (EnemyCounter)
+  or a
+  call z, setup_enemy_table
+
   ld hl, GameCounter
   inc (hl)
 
@@ -77,7 +81,7 @@ _game_loop_enemy_move_skip:
   call update_text
 
   call swap_vbuffer
-
+  
 ; Check for input
   di
 
@@ -256,6 +260,8 @@ _update_enemies_loop_move_skip:
   xor a
   ld (ix + 4), a ; Kill enemy
   ld (PlayerProjectileSpawned), a ; Despawn projectile.
+  ld hl, EnemyCounter
+  dec (hl)
   jr _update_enemies_loop_skip
 _update_enemies_loop_collision_skip:
   ld de, (ix) ; X
@@ -439,6 +445,20 @@ _setup_enemy_table_row_5:
   pop de
   djnz _setup_enemy_table_row_5
 
+  ; Reset game counter.
+  ld hl, EnemyCounter
+  ld (hl), totalEnemies
+  ld hl, GameCounter
+  ld (hl), startingFrame
+
+  ; Reset flags
+  ld hl, GameFlags
+  ld a, (hl)
+  set gameFlagEnemyDirection, a ; Set enemy direction to right.
+  res gameFlagEnemyEdge, a
+  set gameFlagScoreUpdate, a
+  ld (hl), a
+
   ret
 
 PlayerPosition:
@@ -455,38 +475,41 @@ PlayerProjectileY:
 ; Overflow expected.
 ; First frame is 0.
 GameCounter:
-  .db $FF
+  .db startingFrame
 
 ScoreCounter:
-  .dl 0
+  .dl $000000
+
+EnemyCounter:
+  .db $00
 
 ;;; Game Flags ;;;
-; Is turned on for frames where the enemies should move.
+; Is set for frames when enemies should move.
 ; 0: False (default)
 ; 1: True
 gameFlagEnemyMove      .equ 0
 ; Toggles every move.
 ; 0: Left
-; 1: Right (default)
+; 1: Right
 gameFlagEnemyDirection .equ 1
 gameFlagEnemyDirectionBitmask .equ 1 << gameFlagEnemyDirection
 ; Whether the enemies should move down this frame.
-; 0: False (default)
+; 0: False
 ; 1: True
 gameFlagEnemyDown      .equ 2
-gameFlagEnemyDownBitmask     .equ 1 << gameFlagEnemyDown
+gameFlagEnemyDownBitmask      .equ 1 << gameFlagEnemyDown
 ; A enemy has moved to the edge of the screen.
-; 0: False (default)
+; 0: False
 ; 1: True
 gameFlagEnemyEdge      .equ 3
-gameFlagEnemyEdgeBitmask     .equ 1 << gameFlagEnemyEdge
-; Is set when the score should update.
-; 0: False (default)
+gameFlagEnemyEdgeBitmask      .equ 1 << gameFlagEnemyEdge
+; Set when the score should update.
+; 0: False
 ; 1: True
 gameFlagScoreUpdate    .equ 4
 
 GameFlags:
-  .db %00000010
+  .db %00010010
 
 ;;; Enemy States ;;;
 ;   Used for score and death check
