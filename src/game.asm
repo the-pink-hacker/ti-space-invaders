@@ -145,13 +145,17 @@ update_enemies:
   ld ix, enemyTable
   ld b, totalEnemies
 
-  ld a, (GameFlags)
+  ld hl, GameFlags
+  ld a, (hl)
+
+  bit gameFlagEnemyMove, a
+  jr z, _update_enemies_move_check
 
   bit gameFlagEnemyEdge, a ; Check edge flag.
   jr z, _update_enemies_move_check
   
   xor a, gameFlagEnemyDirectionBitmask | gameFlagEnemyDownBitmask | gameFlagEnemyEdgeBitmask ; Invert direction, set down, reset edge
-  ld (GameFlags), a
+  ld (hl), a
 
 _update_enemies_move_check:
   bit gameFlagEnemyMove, a
