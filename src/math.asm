@@ -1,6 +1,6 @@
 number_to_string:
 ; Input:
-;   hl = *number (24-bit)
+;   hl = number
 ;   ix = *output (8-bytes)
 ; Output:
 ;   String is placed at *output
@@ -10,20 +10,20 @@ number_to_string:
   ld d, a
   ld e, a
 
-  bit 0, (hl)
+  bit 0, l
   jr z, _number_to_string_1_1
 
   inc e ; daa unnecessary.
         ; Always valid BCD.
 
 _number_to_string_1_1: ; 00 00 00 02
-  bit 1, (hl)
+  bit 1, l
   jr z, _number_to_string_1_2
 
   inc e ; daa unnecessary.
   inc e ; Always valid BCD.
 _number_to_string_1_2: ; 00 00 00 04
-  bit 2, (hl)
+  bit 2, l
   jr z, _number_to_string_1_3
 
   ; Byte-1
@@ -32,7 +32,7 @@ _number_to_string_1_2: ; 00 00 00 04
   add a, $04
   ld e, a
 _number_to_string_1_3: ; 00 00 00 08
-  bit 3, (hl)
+  bit 3, l
   jr z, _number_to_string_1_4
 
   ; Byte-1
@@ -42,7 +42,7 @@ _number_to_string_1_3: ; 00 00 00 08
   daa
   ld e, a
 _number_to_string_1_4: ; 00 00 00 16
-  bit 4, (hl)
+  bit 4, l
   jr z, _number_to_string_1_5
 
   ; Byte-1
@@ -51,7 +51,7 @@ _number_to_string_1_4: ; 00 00 00 16
   daa
   ld e, a
 _number_to_string_1_5: ; 32
-  bit 5, (hl)
+  bit 5, l
   jr z, _number_to_string_1_6
 
   ; Byte-1
@@ -60,7 +60,7 @@ _number_to_string_1_5: ; 32
   daa
   ld e, a
 _number_to_string_1_6: ; 00 00 00 64
-  bit 6, (hl)
+  bit 6, l
   jr z, _number_to_string_1_7
 
   ; Byte-1
@@ -75,7 +75,7 @@ _number_to_string_1_6: ; 00 00 00 64
   inc d
 
 _number_to_string_1_7: ; 00 00 01 28
-  bit 7, (hl)
+  bit 7, l
   jr z, _number_to_string_2_0
 
   ; Byte-1
@@ -90,8 +90,7 @@ _number_to_string_1_7: ; 00 00 01 28
   adc a, $01
   ld d, a
 _number_to_string_2_0: ; 00 00 02 56
-  inc hl
-  bit 0, (hl)
+  bit 0, h
   jr z, _number_to_string_2_1
 
   ; Byte-1
@@ -107,7 +106,7 @@ _number_to_string_2_0: ; 00 00 02 56
   ld d, a
 
 _number_to_string_2_1: ; 00 00 05 12
-  bit 1, (hl)
+  bit 1, h
   jr z, _number_to_string_2_2
 
   ; Byte-1
@@ -123,7 +122,7 @@ _number_to_string_2_1: ; 00 00 05 12
   daa
   ld d, a
 _number_to_string_2_2: ; 00 00 10 24
-  bit 2, (hl)
+  bit 2, h
   jr z, _number_to_string_2_3
 
   ; Byte-1
@@ -139,7 +138,7 @@ _number_to_string_2_2: ; 00 00 10 24
   daa
   ld d, a
 _number_to_string_2_3: ; 00 00 20 48
-  bit 3, (hl)
+  bit 3, h
   jr z, _number_to_string_2_4
 
   ; Byte-1
@@ -155,7 +154,7 @@ _number_to_string_2_3: ; 00 00 20 48
   daa
   ld d, a
 _number_to_string_2_4: ; 00 00 40 96
-  bit 4, (hl)
+  bit 4, h
   jr z, _number_to_string_2_5
 
   ; Byte-1
@@ -171,7 +170,7 @@ _number_to_string_2_4: ; 00 00 40 96
   daa
   ld d, a
 _number_to_string_2_5: ; 00 00 81 92
-  bit 5, (hl)
+  bit 5, h
   jr z, _number_to_string_2_6
 
   ; Byte-1
@@ -191,7 +190,7 @@ _number_to_string_2_5: ; 00 00 81 92
   inc c ; Carry.
 
 _number_to_string_2_6: ; 00 01 63 84
-  bit 6, (hl)
+  bit 6, h
   jr z, _number_to_string_2_7
 
   ; Byte-1
@@ -212,7 +211,7 @@ _number_to_string_2_6: ; 00 01 63 84
   adc a, $01
   ld c, a
 _number_to_string_2_7: ; 00 03 27 68
-  bit 7, (hl)
+  bit 7, h
   jr z, _number_to_string_3_0
 
   ; Byte-1
@@ -233,8 +232,9 @@ _number_to_string_2_7: ; 00 03 27 68
   adc a, $03
   ld c, a
 _number_to_string_3_0: ; 00 06 55 36
-  inc hl
-  bit 0, (hl)
+  call _SetAToHLU
+  ld h, a
+  bit 0, h
   jr z, _number_to_string_3_1
 
   ; Byte-1
@@ -256,7 +256,7 @@ _number_to_string_3_0: ; 00 06 55 36
   daa
   ld c, a
 _number_to_string_3_1: ; 00 13 10 72
-  bit 1, (hl)
+  bit 1, h
   jr z, _number_to_string_3_2
 
   ; Byte-1
@@ -277,7 +277,7 @@ _number_to_string_3_1: ; 00 13 10 72
   daa
   ld c, a
 _number_to_string_3_2: ; 00 26 21 44
-  bit 2, (hl)
+  bit 2, h
   jr z, _number_to_string_3_3
 
   ; Byte-1
@@ -298,7 +298,7 @@ _number_to_string_3_2: ; 00 26 21 44
   daa
   ld c, a
 _number_to_string_3_3: ; 00 52 42 88
-  bit 3, (hl)
+  bit 3, h
   jr z, _number_to_string_3_4
 
   ; Byte-1
@@ -323,7 +323,7 @@ _number_to_string_3_3: ; 00 52 42 88
 
   inc b ; Carry
 _number_to_string_3_4: ; 01 04 85 76
-  bit 4, (hl)
+  bit 4, h
   jr z, _number_to_string_3_5
 
   ; Byte-1
@@ -350,7 +350,7 @@ _number_to_string_3_4: ; 01 04 85 76
   adc a, $01
   ld b, a
 _number_to_string_3_5: ; 02 09 71 52
-  bit 5, (hl)
+  bit 5, h
   jr z, _number_to_string_3_6
 
   ; Byte-1
@@ -377,7 +377,7 @@ _number_to_string_3_5: ; 02 09 71 52
   adc a, $02
   ld b, a
 _number_to_string_3_6: ; 04 19 43 04
-  bit 6, (hl)
+  bit 6, h
   jr z, _number_to_string_3_7
 
   ; Byte-1
@@ -404,7 +404,7 @@ _number_to_string_3_6: ; 04 19 43 04
   adc a, $04
   ld b, a
 _number_to_string_3_7: ; 08 38 86 08
-  bit 7, (hl)
+  bit 7, h
   jr z, _number_to_string_end
 
   ; Byte-1

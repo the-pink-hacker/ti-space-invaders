@@ -318,7 +318,7 @@ update_text:
 
   res gameFlagScoreUpdate, (hl)
 
-  ld hl, ScoreCounter
+  ld hl, (ScoreCounter)
   ld ix, TextScore + 6
   call number_to_string
 
@@ -445,7 +445,7 @@ _setup_enemy_table_row_5:
   pop de
   djnz _setup_enemy_table_row_5
 
-  ; Reset game counter.
+  ; Reset counters.
   ld hl, EnemyCounter
   ld (hl), totalEnemies
   ld hl, GameCounter
