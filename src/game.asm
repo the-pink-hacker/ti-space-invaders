@@ -49,13 +49,16 @@ _game_loop:
   or a
   call z, setup_enemy_table
 
-  ld hl, GameCounter
-  inc (hl)
+  ld ix, GameCounter
+  inc (ix)
 
   ; Set enemy move flag
-  ld a, (hl) ; a=0 -> 1/256 frames
-  sla a ; a=0 -> 1/128 frames
-  sla a ; a=0 -> 1/64 frames
+  ld hl, 0
+  ld l, (ix)
+  ld a, (EnemyCounter)
+  add a, 64 - totalEnemies
+  call _DivHLByA
+  or a ; hl % a == 0
   ld hl, GameFlags
   jr z, _game_loop_set_enemy_move
 
