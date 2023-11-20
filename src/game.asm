@@ -28,10 +28,25 @@ enemyOffsetY .equ 32
 ;   Y      Size: 1, Offset: 3
 ;   Type   Size: 1, Offset: 4
 enemyTable .equ pixelShadow2
+enemyTableEnd .equ enemyTable + (totalEnemies * enemyMemorySize) ; The byte right after enemyTable's end.
 
 enemyScore1 .equ 30
 enemyScore2 .equ 20
 enemyScore3 .equ 10
+
+; 4x8             Size: 256
+; ShieldSegment   Size: 8
+;   X             Size: 3, Offset: 0
+;   Y             Size: 1, Offset: 3
+;   Health        Size: 1, Offset: 4
+;   SpriteTable   Size: 3, Offset: 5
+shieldSegmentMemorySize .equ 8
+shieldSegments .equ 4 * 2
+totalShields .equ 4
+shieldSegmentSize .equ 6
+shieldsY .equ lcdHeight - (2 * (shieldSegmentSize + playerScreenMargin)) - playerHeight
+shieldXMargin .equ ((lcdWidth / totalShields) - (shieldSegmentSize * totalShields)) / 2
+shield1XOffset .equ shieldXMargin + 3 * shieldSegmentSize
 
 ; Hotkeys
 inputLeftRow  .equ kbdG7
@@ -44,6 +59,7 @@ inputExitRow  .equ kbdG6
 inputExitBit  .equ kbitClear
 
 game_loop:
+  call setup_shield_table
 _game_loop:
   ld a, (EnemyCounter)
   or a
@@ -468,6 +484,9 @@ _setup_enemy_table_row_5:
 
   ret
 
+setup_shield_table:
+  ret
+
 PlayerPosition:
   .dl playerStartingX
 
@@ -538,3 +557,90 @@ EnemyScoreTable:
   .dl enemyScore1 ; Offset: 6
   .dl enemyScore2 ; Offset: 9
   .dl enemyScore3 ; Offset: 12
+
+; (0) 1  1  2
+;  1  3  4  1
+Shield0Table:
+  .dl 0 ; Dead
+  .dl SpriteShield1_0
+  .dl SpriteShield2_0
+  .dl SpriteShield3_0
+  .dl SpriteShield4_0
+
+;  0 (1)(1) 2
+; (1) 3  4 (1)
+Shield1Table:
+  .dl 0 ; Dead
+  .dl SpriteShield1_1
+  .dl SpriteShield2_1
+  .dl SpriteShield3_1
+  .dl SpriteShield4_1
+
+;  0  1  1 (2) Sometimes the same as
+;  1  3  4  1  1's sprite.
+Shield2Table:
+  .dl 0 ; Dead
+  .dl SpriteShield1_1
+  .dl SpriteShield2_2
+  .dl SpriteShield3_2
+  .dl SpriteShield4_2
+
+;  0  1  1  2
+;  1 (3) 4  1
+Shield3Table:
+  .dl 0 ; Dead
+  .dl SpriteShield1_3
+  .dl SpriteShield2_3
+  .dl SpriteShield3_3
+  .dl SpriteShield4_3
+
+;  0  1  1  2
+;  1  3 (4) 1
+Shield4Table:
+  .dl 0 ; Dead
+  .dl SpriteShield1_4
+  .dl SpriteShield2_4
+  .dl SpriteShield3_4
+  .dl SpriteShield4_4
+
+ShieldTable:
+; Shield 0
+ .dl shieldXMargin ; X
+ .db shieldsY      ; Y
+ .db 4             ; Health
+ .dl Shield0Table  ; SpriteTable
+
+ .dl shieldXMargin + shieldSegmentSize ; X
+ .db shieldsY                          ; Y
+ .db 4                                 ; Health
+ .dl Shield1Table                      ; SpriteTable
+
+ .dl shieldXMargin + (2 * shieldSegmentSize) ; X
+ .db shieldsY                                ; Y
+ .db 4                                       ; Health
+ .dl Shield1Table                            ; SpriteTable
+
+ .dl shieldXMargin + (3 * shieldSegmentSize) ; X
+ .db shieldsY                                ; Y
+ .db 4                                       ; Health
+ .dl Shield2Table                            ; SpriteTable
+
+ .dl shieldXMargin                ; X
+ .db shieldsY + shieldSegmentSize ; Y
+ .db 4                            ; Health
+ .dl Shield1Table                 ; SpriteTable
+
+ .dl shieldXMargin + shieldSegmentSize ; X
+ .db shieldsY + shieldSegmentSize      ; Y
+ .db 4                                 ; Health
+ .dl Shield3Table                      ; SpriteTable
+
+ .dl shieldXMargin + (2 * shieldSegmentSize) ; X
+ .db shieldsY + shieldSegmentSize            ; Y
+ .db 4                                       ; Health
+ .dl Shield4Table                            ; SpriteTable
+
+ .dl shieldXMargin + (3 * shieldSegmentSize) ; X
+ .db shieldsY + shieldSegmentSize            ; Y
+ .db 4                                       ; Health
+ .dl Shield1Table                            ; SpriteTable
