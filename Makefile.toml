@@ -8,11 +8,10 @@ command = "mkdir"
 args = ["-p", "${BIN_FOLDER}"]
 
 [tasks.space]
-command = "spasm"
+command = "fasmg"
 args = [
-  "-E",
   "src/main.asm",
-  "build/space.8xp",
+  "${SPACE_BIN}",
 ]
 dependencies = ["build"]
 
