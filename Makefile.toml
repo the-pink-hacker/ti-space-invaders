@@ -1,0 +1,27 @@
+[env]
+BIN_FOLDER = "./bin"
+SPACE_BIN = "${BIN_FOLDER}/space.8xp"
+GENERATED_SRC = "./src/generated"
+
+[tasks.build]
+command = "mkdir"
+args = ["-p", "${BIN_FOLDER}"]
+
+[tasks.space]
+command = "spasm"
+args = [
+  "-E",
+  "src/main.asm",
+  "build/space.8xp",
+]
+dependencies = ["build"]
+
+[tasks.all]
+dependencies = ["space"]
+
+[tasks.clean]
+command = "rm"
+args = ["-rf", "${BIN_FOLDER}"]
+
+[tasks.default]
+alias = "all"
