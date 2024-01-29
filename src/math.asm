@@ -232,7 +232,7 @@ _number_to_string_2_7: ; 00 03 27 68
   adc a, $03
   ld c, a
 _number_to_string_3_0: ; 00 06 55 36
-  call _SetAToHLU
+  call ti.SetAToHLU
   ld h, a
   bit 0, h
   jr z, _number_to_string_3_1

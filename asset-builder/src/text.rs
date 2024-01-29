@@ -37,7 +37,7 @@ pub fn generate_text(text_args: TextArgs) -> anyhow::Result<()> {
             characters.push(converted_character.to_string());
         }
 
-        output += &format!("\n.db {}\n.db $FF\n", characters.join(","));
+        output += &format!("\ndb {}\ndb $FF\n", characters.join(","));
     }
 
     let mut output_file = File::create(text_args.out_path)?;

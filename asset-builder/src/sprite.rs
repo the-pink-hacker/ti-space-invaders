@@ -77,7 +77,7 @@ pub fn generate_sprite(
         output += &format!("Sprite{}:", sprite_suffix);
 
         for pixel in pixels {
-            output += &format!("\n.db {}", pixel);
+            output += &format!("\ndb {}", pixel);
         }
 
         output.push('\n');
@@ -88,12 +88,12 @@ pub fn generate_sprite(
 
         if let Some(offset) = pointer_table.offset {
             for _ in 0..offset {
-                output += &format!("\n.dl 0");
+                output += &format!("\ndl 0");
             }
         }
 
         for (sprite_suffix, _) in metadata.sprites.iter() {
-            output += &format!("\n.dl Sprite{}", sprite_suffix);
+            output += &format!("\ndl Sprite{}", sprite_suffix);
         }
     }
 

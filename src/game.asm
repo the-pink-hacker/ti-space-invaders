@@ -1,38 +1,38 @@
-startingFrame .equ $FF
-spriteWidthSmall .equ 8
-spriteWidthBig .equ 16
-playerHeight .equ 8
-enemyHeight .equ 8
-enemyCollisionWidth .equ 11
-enemyCollisionHeight .equ enemyHeight
-enemyMoveDistance .equ 4
-projectileHeight .equ 8
-projectileMoveDistance .equ 2
-playerScreenMargin .equ 8
-playerStartingY .equ lcdHeight - playerHeight - playerScreenMargin
-playerStartingX .equ (lcdWidth - spriteWidthBig) / 2
-playerXMin .equ playerScreenMargin
-playerXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
-enemyXMin .equ playerScreenMargin
-enemyXMax .equ lcdWidth - spriteWidthBig - playerScreenMargin
-enemyColumns .equ 11
-enemyRows    .equ 5
-totalEnemies .equ enemyColumns * enemyRows
-enemyMemorySize .equ 5
-enemyOffsetX .equ 72
-enemyOffsetY .equ 32
+startingFrame := $FF
+spriteWidthSmall := 8
+spriteWidthBig := 16
+playerHeight := 8
+enemyHeight := 8
+enemyCollisionWidth := 11
+enemyCollisionHeight := enemyHeight
+enemyMoveDistance := 4
+projectileHeight := 8
+projectileMoveDistance := 2
+playerScreenMargin := 8
+playerStartingY := ti.lcdHeight - playerHeight - playerScreenMargin
+playerStartingX := (ti.lcdWidth - spriteWidthBig) / 2
+playerXMin := playerScreenMargin
+playerXMax := ti.lcdWidth - spriteWidthBig - playerScreenMargin
+enemyXMin := playerScreenMargin
+enemyXMax := ti.lcdWidth - spriteWidthBig - playerScreenMargin
+enemyColumns := 11
+enemyRows    := 5
+totalEnemies := enemyColumns * enemyRows
+enemyMemorySize := 5
+enemyOffsetX := 72
+enemyOffsetY := 32
 
 ; 11x5     Size: 275
 ; Enemy    Size: 5
 ;   X      Size: 3, Offset: 0
 ;   Y      Size: 1, Offset: 3
 ;   Type   Size: 1, Offset: 4
-enemyTable .equ pixelShadow2
-enemyTableEnd .equ enemyTable + (totalEnemies * enemyMemorySize) ; The byte right after enemyTable's end.
+enemyTable := ti.pixelShadow2
+enemyTableEnd := enemyTable + (totalEnemies * enemyMemorySize) ; The byte right after enemyTable's end.
 
-enemyScore1 .equ 30
-enemyScore2 .equ 20
-enemyScore3 .equ 10
+enemyScore1 := 30
+enemyScore2 := 20
+enemyScore3 := 10
 
 ; 4x8             Size: 256
 ; ShieldSegment   Size: 8
@@ -40,23 +40,23 @@ enemyScore3 .equ 10
 ;   Y             Size: 1, Offset: 3
 ;   Health        Size: 1, Offset: 4
 ;   SpriteTable   Size: 3, Offset: 5
-shieldSegmentMemorySize .equ 8
-shieldSegments .equ 4 * 2
-totalShields .equ 4
-shieldSegmentSize .equ 6
-shieldsY .equ lcdHeight - (2 * (shieldSegmentSize + playerScreenMargin)) - playerHeight
-shieldXMargin .equ ((lcdWidth / totalShields) - (shieldSegmentSize * totalShields)) / 2
-shield1XOffset .equ shieldXMargin + 3 * shieldSegmentSize
+shieldSegmentMemorySize := 8
+shieldSegments := 4 * 2
+totalShields := 4
+shieldSegmentSize := 6
+shieldsY := ti.lcdHeight - (2 * (shieldSegmentSize + playerScreenMargin)) - playerHeight
+shieldXMargin := ((ti.lcdWidth / totalShields) - (shieldSegmentSize * totalShields)) / 2
+shield1XOffset := shieldXMargin + 3 * shieldSegmentSize
 
 ; Hotkeys
-inputLeftRow  .equ kbdG7
-inputLeftBit  .equ kbitLeft
-inputRightRow .equ kbdG7
-inputRightBit .equ kbitRight
-inputFireRow  .equ kbdG1
-inputFireBit  .equ kbit2nd
-inputExitRow  .equ kbdG6
-inputExitBit  .equ kbitClear
+inputLeftRow  := ti.kbdG7
+inputLeftBit  := ti.kbitLeft
+inputRightRow := ti.kbdG7
+inputRightBit := ti.kbitRight
+inputFireRow  := ti.kbdG1
+inputFireBit  := ti.kbit2nd
+inputExitRow  := ti.kbdG6
+inputExitBit  := ti.kbitClear
 
 game_loop:
   call setup_shield_table
@@ -75,7 +75,7 @@ _game_loop:
   add a, 64 - totalEnemies
   call ti.DivHLByA
   or a ; hl % a == 0
-  ld hl, ti.GameFlags
+  ld hl, GameFlags
   jr z, _game_loop_set_enemy_move
 
   res gameFlagEnemyMove, (hl) ; Reset flag
@@ -173,7 +173,7 @@ update_enemies:
   bit gameFlagEnemyEdge, a ; Check edge flag.
   jr z, _update_enemies_move_check
   
-  xor a, gameFlagEnemyDirectionBitmask | gameFlagEnemyDownBitmask | gameFlagEnemyEdgeBitmask ; Invert direction, set down, reset edge
+  xor a, gameFlagEnemyDirectionBitmask or gameFlagEnemyDownBitmask or gameFlagEnemyEdgeBitmask ; Invert direction, set down, reset edge
   ld (hl), a
 
 _update_enemies_move_check:
@@ -488,159 +488,159 @@ setup_shield_table:
   ret
 
 PlayerPosition:
-  .dl playerStartingX
+  dl playerStartingX
 
 PlayerProjectileSpawned:
-  .db $00
+  db $00
 PlayerProjectileX:
-  .dl $000000
+  dl $000000
 PlayerProjectileY:
-  .db $00
+  db $00
 
 ; Counts up each frame.
 ; Overflow expected.
 ; First frame is 0.
 GameCounter:
-  .db startingFrame
+  db startingFrame
 
 ScoreCounter:
-  .dl $000000
+  dl $000000
 
 EnemyCounter:
-  .db $00
+  db $00
 
 ;;; Game Flags ;;;
 ; Is set for frames when enemies should move.
 ; 0: False (default)
 ; 1: True
-gameFlagEnemyMove      .equ 0
+gameFlagEnemyMove      := 0
 ; Toggles every move.
 ; 0: Left
 ; 1: Right
-gameFlagEnemyDirection .equ 1
-gameFlagEnemyDirectionBitmask .equ 1 << gameFlagEnemyDirection
+gameFlagEnemyDirection := 1
+gameFlagEnemyDirectionBitmask := 1 shl gameFlagEnemyDirection
 ; Whether the enemies should move down this frame.
 ; 0: False
 ; 1: True
-gameFlagEnemyDown      .equ 2
-gameFlagEnemyDownBitmask      .equ 1 << gameFlagEnemyDown
+gameFlagEnemyDown      := 2
+gameFlagEnemyDownBitmask      := 1 shl gameFlagEnemyDown
 ; A enemy has moved to the edge of the screen.
 ; 0: False
 ; 1: True
-gameFlagEnemyEdge      .equ 3
-gameFlagEnemyEdgeBitmask      .equ 1 << gameFlagEnemyEdge
+gameFlagEnemyEdge      := 3
+gameFlagEnemyEdgeBitmask      := 1 shl gameFlagEnemyEdge
 ; Set when the score should update.
 ; 0: False
 ; 1: True
-gameFlagScoreUpdate    .equ 4
+gameFlagScoreUpdate    := 4
 
 GameFlags:
-  .db %00010010
+  db 00010010b
 
 ;;; Enemy States ;;;
 ;   Used for score and death check
-enemyStateDead      .equ 3 * 0
-enemyStateExplosion .equ 3 * 1
-enemyState1         .equ 3 * 2
-enemyState2         .equ 3 * 3
-enemyState3         .equ 3 * 4
+enemyStateDead      := 3 * 0
+enemyStateExplosion := 3 * 1
+enemyState1         := 3 * 2
+enemyState2         := 3 * 3
+enemyState3         := 3 * 4
 
 EnemySpriteTable:
-  .dl 0 ; Dead
-  .dl SpriteEnemyDeath ; Offset: 3
-  .dl SpriteEnemy1a    ; Offset: 6
-  .dl SpriteEnemy2a    ; Offset: 9
-  .dl SpriteEnemy3a    ; Offset: 12
+  dl 0 ; Dead
+  dl SpriteEnemyDeath ; Offset: 3
+  dl SpriteEnemy1a    ; Offset: 6
+  dl SpriteEnemy2a    ; Offset: 9
+  dl SpriteEnemy3a    ; Offset: 12
 
 EnemyScoreTable:
-  .dl 0, 0 ; Death, death animation.
-  .dl enemyScore1 ; Offset: 6
-  .dl enemyScore2 ; Offset: 9
-  .dl enemyScore3 ; Offset: 12
+  dl 0, 0 ; Death, death animation.
+  dl enemyScore1 ; Offset: 6
+  dl enemyScore2 ; Offset: 9
+  dl enemyScore3 ; Offset: 12
 
 ; (0) 1  1  2
 ;  1  3  4  1
 Shield0Table:
-  .dl 0 ; Dead
-  .dl SpriteShield1_0
-  .dl SpriteShield2_0
-  .dl SpriteShield3_0
-  .dl SpriteShield4_0
+  dl 0 ; Dead
+  dl SpriteShield1_0
+  dl SpriteShield2_0
+  dl SpriteShield3_0
+  dl SpriteShield4_0
 
 ;  0 (1)(1) 2
 ; (1) 3  4 (1)
 Shield1Table:
-  .dl 0 ; Dead
-  .dl SpriteShield1_1
-  .dl SpriteShield2_1
-  .dl SpriteShield3_1
-  .dl SpriteShield4_1
+  dl 0 ; Dead
+  dl SpriteShield1_1
+  dl SpriteShield2_1
+  dl SpriteShield3_1
+  dl SpriteShield4_1
 
 ;  0  1  1 (2) Sometimes the same as
 ;  1  3  4  1  1's sprite.
 Shield2Table:
-  .dl 0 ; Dead
-  .dl SpriteShield1_1
-  .dl SpriteShield2_2
-  .dl SpriteShield3_2
-  .dl SpriteShield4_2
+  dl 0 ; Dead
+  dl SpriteShield1_1
+  dl SpriteShield2_2
+  dl SpriteShield3_2
+  dl SpriteShield4_2
 
 ;  0  1  1  2
 ;  1 (3) 4  1
 Shield3Table:
-  .dl 0 ; Dead
-  .dl SpriteShield1_3
-  .dl SpriteShield2_3
-  .dl SpriteShield3_3
-  .dl SpriteShield4_3
+  dl 0 ; Dead
+  dl SpriteShield1_3
+  dl SpriteShield2_3
+  dl SpriteShield3_3
+  dl SpriteShield4_3
 
 ;  0  1  1  2
 ;  1  3 (4) 1
 Shield4Table:
-  .dl 0 ; Dead
-  .dl SpriteShield1_4
-  .dl SpriteShield2_4
-  .dl SpriteShield3_4
-  .dl SpriteShield4_4
+  dl 0 ; Dead
+  dl SpriteShield1_4
+  dl SpriteShield2_4
+  dl SpriteShield3_4
+  dl SpriteShield4_4
 
 ShieldTable:
 ; Shield 0
- .dl shieldXMargin ; X
- .db shieldsY      ; Y
- .db 4             ; Health
- .dl Shield0Table  ; SpriteTable
+ dl shieldXMargin ; X
+ db shieldsY      ; Y
+ db 4             ; Health
+ dl Shield0Table  ; SpriteTable
 
- .dl shieldXMargin + shieldSegmentSize ; X
- .db shieldsY                          ; Y
- .db 4                                 ; Health
- .dl Shield1Table                      ; SpriteTable
+ dl shieldXMargin + shieldSegmentSize ; X
+ db shieldsY                          ; Y
+ db 4                                 ; Health
+ dl Shield1Table                      ; SpriteTable
 
- .dl shieldXMargin + (2 * shieldSegmentSize) ; X
- .db shieldsY                                ; Y
- .db 4                                       ; Health
- .dl Shield1Table                            ; SpriteTable
+ dl shieldXMargin + (2 * shieldSegmentSize) ; X
+ db shieldsY                                ; Y
+ db 4                                       ; Health
+ dl Shield1Table                            ; SpriteTable
 
- .dl shieldXMargin + (3 * shieldSegmentSize) ; X
- .db shieldsY                                ; Y
- .db 4                                       ; Health
- .dl Shield2Table                            ; SpriteTable
+ dl shieldXMargin + (3 * shieldSegmentSize) ; X
+ db shieldsY                                ; Y
+ db 4                                       ; Health
+ dl Shield2Table                            ; SpriteTable
 
- .dl shieldXMargin                ; X
- .db shieldsY + shieldSegmentSize ; Y
- .db 4                            ; Health
- .dl Shield1Table                 ; SpriteTable
+ dl shieldXMargin                ; X
+ db shieldsY + shieldSegmentSize ; Y
+ db 4                            ; Health
+ dl Shield1Table                 ; SpriteTable
 
- .dl shieldXMargin + shieldSegmentSize ; X
- .db shieldsY + shieldSegmentSize      ; Y
- .db 4                                 ; Health
- .dl Shield3Table                      ; SpriteTable
+ dl shieldXMargin + shieldSegmentSize ; X
+ db shieldsY + shieldSegmentSize      ; Y
+ db 4                                 ; Health
+ dl Shield3Table                      ; SpriteTable
 
- .dl shieldXMargin + (2 * shieldSegmentSize) ; X
- .db shieldsY + shieldSegmentSize            ; Y
- .db 4                                       ; Health
- .dl Shield4Table                            ; SpriteTable
+ dl shieldXMargin + (2 * shieldSegmentSize) ; X
+ db shieldsY + shieldSegmentSize            ; Y
+ db 4                                       ; Health
+ dl Shield4Table                            ; SpriteTable
 
- .dl shieldXMargin + (3 * shieldSegmentSize) ; X
- .db shieldsY + shieldSegmentSize            ; Y
- .db 4                                       ; Health
- .dl Shield1Table                            ; SpriteTable
+ dl shieldXMargin + (3 * shieldSegmentSize) ; X
+ db shieldsY + shieldSegmentSize            ; Y
+ db 4                                       ; Health
+ dl Shield1Table                            ; SpriteTable

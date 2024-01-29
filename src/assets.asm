@@ -12,12 +12,12 @@ include "src/generated/sprites/shield_2.asm"
 include "src/generated/sprites/shield_3.asm"
 include "src/generated/sprites/shield_4.asm"
 
-spriteEnemy1BitmaskMs .equ ((SpriteEnemy1a & $00FF00) >> 8) ^ ((SpriteEnemy1b & $00FF00) >> 8)
-spriteEnemy1BitmaskLs .equ (SpriteEnemy1a & $0000FF) ^ (SpriteEnemy1b & $0000FF)
-spriteEnemy2BitmaskMs .equ ((SpriteEnemy2a & $00FF00) >> 8) ^ ((SpriteEnemy2b & $00FF00) >> 8)
-spriteEnemy2BitmaskLs .equ (SpriteEnemy2a & $0000FF) ^ (SpriteEnemy2b & $0000FF)
-spriteEnemy3BitmaskMs .equ ((SpriteEnemy3a & $00FF00) >> 8) ^ ((SpriteEnemy3b & $00FF00) >> 8)
-spriteEnemy3BitmaskLs .equ (SpriteEnemy3a & $0000FF) ^ (SpriteEnemy3b & $0000FF)
+spriteEnemy1BitmaskMs := ((SpriteEnemy1a and $00FF00) shr 8) xor ((SpriteEnemy1b and $00FF00) shr 8)
+spriteEnemy1BitmaskLs := (SpriteEnemy1a and $0000FF) xor (SpriteEnemy1b and $0000FF)
+spriteEnemy2BitmaskMs := ((SpriteEnemy2a and $00FF00) shr 8) xor ((SpriteEnemy2b and $00FF00) shr 8)
+spriteEnemy2BitmaskLs := (SpriteEnemy2a and $0000FF) xor (SpriteEnemy2b and $0000FF)
+spriteEnemy3BitmaskMs := ((SpriteEnemy3a and $00FF00) shr 8) xor ((SpriteEnemy3b and $00FF00) shr 8)
+spriteEnemy3BitmaskLs := (SpriteEnemy3a and $0000FF) xor (SpriteEnemy3b and $0000FF)
 
 ; Text
 include "src/generated/texts.asm"

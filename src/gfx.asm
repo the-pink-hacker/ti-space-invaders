@@ -1,9 +1,9 @@
-vBufferSize .equ (vRamEnd - vRam) / 2
-vBuffer0 .equ vRam
-vBuffer1 .equ vBuffer0 + vBufferSize
+vBufferSize := (ti.vRamEnd - ti.vRam) / 2
+vBuffer0 := ti.vRam
+vBuffer1 := vBuffer0 + vBufferSize
 
 RenderBuffer:
-  .dl vBuffer1
+  dl vBuffer1
 
 fill_screen:
 ; Fill the entire screen with one color.
@@ -178,11 +178,11 @@ copy_hl_1555_palette:
 _copy_hl_1555_palette_loop:
   ld d, b
   ld a, b
-  and %11000000
+  and 11000000b
   srl d
   rra
   ld e,a
-  ld a, %00011111
+  ld a, 00011111b
   and b
   or e
   ld (hl), a
@@ -203,14 +203,14 @@ swap_vbuffer:
 ;     af
   ld a, (ti.mpLcdBase + 1)
   push af
-  xor %00101100
+  xor 00101100b
   ld (ti.mpLcdBase + 1), a
   pop af
   ld (RenderBuffer + 1), a
   ; Second byte
   ld a, (ti.mpLcdBase + 2)
   push af
-  xor %00000001
+  xor 00000001b
   ld (ti.mpLcdBase + 2), a
   pop af
   ld (RenderBuffer + 2), a
