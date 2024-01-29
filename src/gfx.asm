@@ -23,7 +23,7 @@ fill_screen:
   ld de, (RenderBuffer)
   inc de
   ld (hl), a
-  ld bc, lcdHeight * lcdWidth - 1
+  ld bc, ti.lcdHeight * ti.lcdWidth - 1
   ldir
   ret
 
@@ -37,7 +37,7 @@ put_sprite_16:
 ;   All
   ld hl, (RenderBuffer)
   add hl, de
-  ld de, lcdWidth
+  ld de, ti.lcdWidth
 _put_sprite_16_yshift_loop:
   add hl, de
   djnz _put_sprite_16_yshift_loop ; y=0 => y=255
@@ -50,7 +50,7 @@ _put_sprite_16_render_loop:
   ld bc, spriteWidthBig
   ldir
   ex de, hl
-  ld bc, lcdWidth - spriteWidthBig
+  ld bc, ti.lcdWidth - spriteWidthBig
   add hl, bc
   ex de, hl
   pop bc ; 1: height
@@ -71,7 +71,7 @@ put_string:
   jr z, _put_string_exit
   cp 36 ; Space
   jr z, _put_string_space
-  push hl ; TODO: Look into shadow registers
+  push hl
   push de
   push bc
   call put_char
@@ -131,7 +131,7 @@ put_sprite_8:
 ;   All
   ld hl, (RenderBuffer)
   add hl, de
-  ld de, lcdWidth
+  ld de, ti.lcdWidth
 _put_sprite_8_yshift_loop:
   add hl, de
   djnz _put_sprite_8_yshift_loop ; y=0 => y=255
@@ -144,7 +144,7 @@ _put_sprite_8_render_loop:
   ld bc, spriteWidthSmall
   ldir
   ex de, hl
-  ld bc, lcdWidth - spriteWidthSmall
+  ld bc, ti.lcdWidth - spriteWidthSmall
   add hl, bc
   ex de, hl
   pop bc ; 1: height
@@ -155,16 +155,16 @@ init_lcd:
 ; Sets up the lcd for 8-bit color and
 ; loads the color palette.
   call copy_hl_1555_palette
-  ld a, lcdBpp8    ; Enable 8-bit color
-  ld (mpLcdCtrl), a
+  ld a, ti.lcdBpp8    ; Enable 8-bit color
+  ld (ti.mpLcdCtrl), a
   ret
 
 clean_up_lcd:
 ; Resets lcd to default
-  ld a, lcdBpp16
-  ld (mpLcdCtrl), a ; Default color mode
-  ld hl, vRam
-  ld (mpLcdBase), hl
+  ld a, ti.lcdBpp16
+  ld (ti.mpLcdCtrl), a ; Default color mode
+  ld hl, ti.vRam
+  ld (ti.mpLcdBase), hl
   ret
 
 ; https://wikiti.brandonw.net/index.php?title=84PCE:Ports:4000
@@ -173,7 +173,7 @@ copy_hl_1555_palette:
 ;
 ; Destorys:
 ;   All
-  ld hl, mpLcdPalette ; palette mem
+  ld hl, ti.mpLcdPalette ; palette mem
   ld b, 0
 _copy_hl_1555_palette_loop:
   ld d, b
@@ -201,18 +201,17 @@ swap_vbuffer:
 ; Destorys:
 ;   Registers:
 ;     af
-  ; Toggles vRam
-  ld a, (mpLcdBase + 1)
+  ld a, (ti.mpLcdBase + 1)
   push af
   xor %00101100
-  ld (mpLcdBase + 1), a
+  ld (ti.mpLcdBase + 1), a
   pop af
   ld (RenderBuffer + 1), a
   ; Second byte
-  ld a, (mpLcdBase + 2)
+  ld a, (ti.mpLcdBase + 2)
   push af
   xor %00000001
-  ld (mpLcdBase + 2), a
+  ld (ti.mpLcdBase + 2), a
   pop af
   ld (RenderBuffer + 2), a
   ret

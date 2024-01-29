@@ -1,30 +1,28 @@
-.nolist
-#include "includes/ti84pce.inc"
-.list
+include "include/ti84pceg.inc"
+include "include/ez80.inc"
+include "include/tiformat.inc"
+format ti executable "SPACE"
 
-.org userMem - 2
-.assume ADL = 1
-.db tExtTok, tAsm84CeCmp
-start:
-  call _RunIndicOff
+space:
+  call ti.RunIndicOff
   call initialize_keyboard
-  call _ClrLCDAll
+  call ti.ClrLCDAll
   call init_lcd
   call game_loop
 exit:
   call restore_keyboard
   call clean_up_lcd
-  call _ClrScrnFull
-  call _HomeUp
-  jp _DrawStatusBar
+  call ti.ClrScrnFull
+  call ti.HomeUp
+  jp ti.DrawStatusBar
 
 ; Credit
 ; Not actually used in program
-.db "https://github.thepinkhacker.com/ti-space-invaders"
+db "https://github.thepinkhacker.com/ti-space-invaders"
 
 initialize_keyboard:
   di
-  ld hl, DI_MODE
+  ld hl, ti.DI_Mode
   ld (hl), 3
   ei
   ret
@@ -48,9 +46,7 @@ restore_keyboard:
   ret
 
 
-#include "src/game.asm"
-#include "src/gfx.asm"
-#include "src/math.asm"
-#include "src/assets.asm"
-
-.end
+include "src/game.asm"
+include "src/gfx.asm"
+include "src/math.asm"
+include "src/assets.asm"

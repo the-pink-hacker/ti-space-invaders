@@ -73,9 +73,9 @@ _game_loop:
   ld l, (ix)
   ld a, (EnemyCounter)
   add a, 64 - totalEnemies
-  call _DivHLByA
+  call ti.DivHLByA
   or a ; hl % a == 0
-  ld hl, GameFlags
+  ld hl, ti.GameFlags
   jr z, _game_loop_set_enemy_move
 
   res gameFlagEnemyMove, (hl) ; Reset flag
