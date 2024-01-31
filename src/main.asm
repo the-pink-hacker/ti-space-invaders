@@ -4,6 +4,7 @@ include "include/tiformat.inc"
 format ti executable "SPACE"
 
 space:
+  call load_libload_libraries
   call ti.RunIndicOff
   call initialize_keyboard
   call ti.ClrLCDAll
@@ -46,6 +47,7 @@ restore_keyboard:
   ret
 
 
+include "src/libload.asm"
 include "src/game.asm"
 include "src/gfx.asm"
 include "src/math.asm"
