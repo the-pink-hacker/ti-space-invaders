@@ -50,9 +50,17 @@ libload_libload:
 
 gfx:
     db $C0, "GRAPHX", 0, 9
-    
-    .Wait:
-        jp 3 * 92
+
+    .Begin:
+        jp 3 * 0
+    .End:
+        jp 3 * 1
+    .SetDraw:
+        jp 3 * 9
+    .SwapDraw:
+        jp 3 * 10
+    .ZeroScreen:
+        jp 3 * 76
     
         xor a, a      ; return z (loaded)
         pop hl      ; pop error return

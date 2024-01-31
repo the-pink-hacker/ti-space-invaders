@@ -8,11 +8,13 @@ space:
   call ti.RunIndicOff
   call initialize_keyboard
   call ti.ClrLCDAll
-  call init_lcd
+  ;call init_lcd
+  call gfx.Begin
   call game_loop
 exit:
   call restore_keyboard
-  call clean_up_lcd
+  ;call clean_up_lcd
+  call gfx.End
   call ti.ClrScrnFull
   call ti.HomeUp
   jp ti.DrawStatusBar

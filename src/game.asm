@@ -59,6 +59,11 @@ inputExitRow  := ti.kbdG6
 inputExitBit  := ti.kbitClear
 
 game_loop:
+  ld hl, 1
+  push hl
+  call gfx.SetDraw
+  pop hl
+
   call setup_shield_table
 _game_loop:
   ld a, (EnemyCounter)
@@ -85,8 +90,9 @@ _game_loop_set_enemy_move:
   set gameFlagEnemyMove, (hl) ; Set flag
 
 _game_loop_enemy_move_skip:
-  xor a ; Sets to black ($00)
-  call fill_screen
+  ;xor a ; Sets to black ($00)
+  ;call fill_screen
+  call gfx.ZeroScreen
 
   call update_player_projectile
   call update_enemies
@@ -100,6 +106,7 @@ _game_loop_enemy_move_skip:
   call update_text
 
   call swap_vbuffer
+  call gfx.SwapDraw
   
 ; Check for input
   di
@@ -119,7 +126,8 @@ _game_loop_enemy_move_skip:
   ld hl, inputExitRow
   bit inputExitBit, (hl)
   ei
-  jr z, _game_loop
+
+  jp z, _game_loop
   ret
 
 player_left:

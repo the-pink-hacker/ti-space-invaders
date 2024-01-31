@@ -197,21 +197,23 @@ _copy_hl_1555_palette_loop:
 ; 1101 0101 0010 1100 0000 0000
 ; 0000 0001 0010 1100 0000 0000
 
+; This is just a hack
+; TODO: Switch rendering to graphx lib
 swap_vbuffer:
 ; Destorys:
 ;   Registers:
 ;     af
   ld a, (ti.mpLcdBase + 1)
   push af
-  xor 00101100b
-  ld (ti.mpLcdBase + 1), a
+  xor a, 00101100b
+  ;ld (ti.mpLcdBase + 1), a
   pop af
   ld (RenderBuffer + 1), a
   ; Second byte
   ld a, (ti.mpLcdBase + 2)
   push af
-  xor 00000001b
-  ld (ti.mpLcdBase + 2), a
+  xor a, 00000001b
+  ;ld (ti.mpLcdBase + 2), a
   pop af
   ld (RenderBuffer + 2), a
   ret
